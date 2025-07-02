@@ -170,6 +170,8 @@ type Step struct {
 	Env              map[string]string `json:"env,omitempty"`
 	ContinueOnError  bool              `json:"continue-on-error,omitempty"`
 	TimeoutMinutes   int               `json:"timeout-minutes,omitempty"`
+	Container        Container         `json:"container,omitempty,omitzero"`
+	Strategy         Strategy          `json:"strategy,omitempty,omitzero"`
 }
 
 type Shell string
@@ -177,3 +179,63 @@ type Shell string
 const (
 	ShellBash Shell = "bash"
 )
+
+type Container struct {
+	Image       string               `json:"image,omitempty"`
+	Env         map[string]string    `json:"env,omitempty"`
+	Ports       map[string]int       `json:"ports,omitempty"`
+	Volumes     []string             `json:"volumes,omitempty"`
+	Credentials ContainerCredentials `json:"credentials,omitempty,omitzero"`
+	Options     string               `json:"options,omitempty"`
+}
+
+type ContainerCredentials struct {
+	Username string `json:"username,omitempty"`
+	Password string `json:"password,omitempty"`
+}
+
+type Strategy struct {
+	Matrix      Matrix `json:"matrix,omitempty"`
+	FailFast    bool   `json:"fail-fast,omitempty"`
+	MaxParallel int    `json:"max-parallel,omitempty"`
+}
+
+type Matrix struct {
+	Map     map[string]ListOrExpression
+	Include []map[string]ListOrExpression
+	Exclude []map[string]ListOrExpression
+}
+
+func (m *Matrix) UnmarshalJSON(data []byte) error {
+	return nil
+}
+
+func (m *Matrix) MarshalJSON() ([]byte, error) {
+	return nil, nil
+}
+
+type ListOrExpression struct {
+	ListValue  []StringOrInt
+	Expression string
+}
+
+func (l *ListOrExpression) UnmarshalJSON(data []byte) error {
+	return nil
+}
+
+func (l *ListOrExpression) MarshalJSON() ([]byte, error) {
+	return nil, nil
+}
+
+type StringOrInt struct {
+	StringValue string `json:"string_value,omitempty"`
+	IntValue    int    `json:"int_value,omitempty"`
+}
+
+func (l *StringOrInt) UnmarshalJSON(data []byte) error {
+	return nil
+}
+
+func (l *StringOrInt) MarshalJSON() ([]byte, error) {
+	return nil, nil
+}
