@@ -1,0 +1,34 @@
+name: main.yml
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    types: [opened, reopened, synchronize]
+  workflow_dispatch:
+    inputs: {}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: asdf-vm/actions/setup@v4
+      - run: make setup
+      - run: make test
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [build]
+    permissions:
+      packages: write
+    env:
+      CI_RELEASE: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: make release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}

@@ -202,3 +202,7 @@ Temporary Items
 
 # Built Visual Studio Code Extensions
 *.vsix
+
+#### Go Releaser
+
+/dist

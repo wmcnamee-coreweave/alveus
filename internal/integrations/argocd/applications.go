@@ -7,9 +7,11 @@ import (
 	argoapisapplication "github.com/argoproj/argo-cd/v3/pkg/apis/application"
 	argov1alpha1 "github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/ghostsquad/alveus/api/v1alpha1"
 )
 
-type NewApplicationOptions struct {
+type Options struct {
 	Namespace         string
 	Labels            map[string]string
 	Annotations       map[string]string
@@ -18,22 +20,16 @@ type NewApplicationOptions struct {
 	Project           string
 }
 
-type Source struct {
-	Path    string
-	Include string
-	Exclude string
-}
+type Option func(*Options)
 
-type NewApplicationOption func(*NewApplicationOptions)
-
-type NewApplicationInput struct {
+type Input struct {
 	Name           string
 	RepoURL        string
 	TargetRevision string
-	Sources        []Source
+	Sources        []v1alpha1.Source
 }
 
-func (in *NewApplicationInput) Validate() error {
+func (in *Input) Validate() error {
 	var errs []error
 
 	if in.Name == "" {
@@ -61,8 +57,16 @@ func (in *NewApplicationInput) Validate() error {
 	return errors.Join(errs...)
 }
 
-func NewApplication(input NewApplicationInput, options ...NewApplicationOption) (*argov1alpha1.Application, error) {
-	opts := &NewApplicationOptions{
+func FromServiceAPI(service v1alpha1.Service) Option {
+	return func(o *Options) {
+		o.SyncPolicy = service.SyncPolicy
+		o.IgnoreDifferences = service.IgnoreDifferences
+		o.Namespace = service.DestinationNamespace
+	}
+}
+
+func NewApplication(input Input, options ...Option) (argov1alpha1.Application, error) {
+	opts := &Options{
 		Namespace:   "argocd",
 		Labels:      map[string]string{},
 		Annotations: map[string]string{},
@@ -87,25 +91,26 @@ func NewApplication(input NewApplicationInput, options ...NewApplicationOption) 
 		return nil, err
 	}
 
-	srcs := make([]argov1alpha1.ApplicationSource, len(input.Sources))
+	sources := make([]argov1alpha1.ApplicationSource, len(input.Sources))
 	for i, source := range input.Sources {
 		if source.Include == "" {
 			source.Include = "{*.yml,*.yaml}"
 		}
 
-		srcs[i] = argov1alpha1.ApplicationSource{
+		sources[i] = argov1alpha1.ApplicationSource{
 			RepoURL:        input.RepoURL,
 			Path:           source.Path,
 			TargetRevision: input.TargetRevision,
 			Directory: &argov1alpha1.ApplicationSourceDirectory{
 				Recurse: true,
+				Jsonnet: source.Jsonnet,
 				Exclude: source.Exclude,
 				Include: source.Include,
 			},
 		}
 	}
 
-	app := &argov1alpha1.Application{
+	app := argov1alpha1.Application{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       argoapisapplication.ApplicationKind,
 			APIVersion: argov1alpha1.SchemeGroupVersion.String(),
@@ -121,7 +126,7 @@ func NewApplication(input NewApplicationInput, options ...NewApplicationOption) 
 			Project:           opts.Project,
 			SyncPolicy:        opts.SyncPolicy,
 			IgnoreDifferences: opts.IgnoreDifferences,
-			Sources:           srcs,
+			Sources:           sources,
 		},
 	}
 
