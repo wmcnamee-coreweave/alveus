@@ -17,10 +17,10 @@ type Service struct {
 }
 
 type Source struct {
-	Path    string
-	Include string
-	Exclude string
-	Jsonnet argov1alpha1.ApplicationSourceJsonnet
+	Path    string                                `json:"path"`
+	Include string                                `json:"include,omitempty,omitzero"`
+	Exclude string                                `json:"exclude,omitempty,omitzero"`
+	Jsonnet argov1alpha1.ApplicationSourceJsonnet `json:"jsonnet,omitempty,omitzero"`
 }
 
 type DestinationGroups []DestinationGroup

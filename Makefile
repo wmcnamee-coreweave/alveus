@@ -5,8 +5,17 @@ setup:
 	echo "setup"
 
 .PHONY: test
-test:
-	go test ./...
+test: build
+	go run github.com/onsi/ginkgo/v2/ginkgo run ./...
+
+.PHONY: build
+build: gen
+	go build -o alveus ./cmd/alveus/main.go
+
+.PHONY: gen
+gen:
+	go generate ./...
+	go run ./cmd/gen-examples/main.go
 
 .PHONY: git-push-tag
 git-push-tag:

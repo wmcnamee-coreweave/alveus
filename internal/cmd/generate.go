@@ -2,9 +2,12 @@ package cmd
 
 import (
 	"fmt"
+	"io"
+	"os"
 
 	argov1alpha1 "github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
 	gocto "github.com/cakehappens/gocto"
+	"github.com/goforj/godump"
 	"github.com/spf13/cobra"
 
 	"github.com/ghostsquad/alveus/api/v1alpha1"
@@ -15,13 +18,68 @@ import (
 )
 
 func NewGenerateCommand() *cobra.Command {
+	var repoURL string
+	var serviceFile string
+
 	cmd := &cobra.Command{
-		Use:          "generate NOUN",
-		SilenceUsage: true,
+		Use: "generate",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			var serviceBytes []byte
+			var err error
+
+			if serviceFile == "" || serviceFile == "-" {
+				stat, _ := os.Stdin.Stat()
+				if (stat.Mode() & os.ModeCharDevice) == 0 {
+					_, _ = fmt.Fprintf(os.Stderr, "data is being piped to stdin\n")
+					serviceBytes, err = io.ReadAll(os.Stdin)
+					if err != nil {
+						return fmt.Errorf("failed to read from stdin: %w", err)
+					}
+				} else {
+					return fmt.Errorf("stdin is from a terminal")
+				}
+			} else {
+				serviceBytes, err = os.ReadFile(serviceFile)
+				if err != nil {
+					return fmt.Errorf("failed to read from file: %s: %w", serviceFile, err)
+				}
+			}
+
+			var service v1alpha1.Service
+			{
+				service, err = v1alpha1.NewFromYaml(serviceBytes)
+				if err != nil {
+					return fmt.Errorf("failed to construct/validate service definition: %w", err)
+				}
+			}
+
+			var apps []argov1alpha1.Application
+			apps, err = generateApps(repoURL, "HEAD", service)
+			if err != nil {
+				return fmt.Errorf("failed to generate apps: %w", err)
+			}
+
+			var wfs []gocto.Workflow
+			wfs, err = generateWorkflows(service)
+			if err != nil {
+				return fmt.Errorf("failed to generate workflows: %w", err)
+			}
+
+			godump.Dump(apps)
+			godump.Dump(wfs)
+
 			return nil
 		},
 	}
+
+	f := cmd.Flags()
+	f.StringVarP(&repoURL, "repo-url", "r", "", "URL of the repository")
+	err := cmd.MarkFlagRequired("repo-url")
+	if err != nil {
+		panic(err)
+	}
+
+	f.StringVarP(&serviceFile, "service-file", "s", "", `path to a service file. Omit or use "-" for stdin`)
 
 	return cmd
 }

@@ -206,3 +206,8 @@ Temporary Items
 #### Go Releaser
 
 /dist
+
+#### CUSTOM
+
+# built binary
+/alveus

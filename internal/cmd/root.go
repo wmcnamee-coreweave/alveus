@@ -4,15 +4,13 @@ import "github.com/spf13/cobra"
 
 func NewRootCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:          "generate NOUN",
-		SilenceUsage: true,
+		Use: "",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return nil
+			return cmd.Help()
 		},
 	}
 
 	cmd.AddCommand(
-		NewInitCommand(),
 		NewGenerateCommand(),
 	)
 

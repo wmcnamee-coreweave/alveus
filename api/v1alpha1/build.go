@@ -2,30 +2,20 @@ package v1alpha1
 
 import (
 	"errors"
+	"fmt"
+
+	"sigs.k8s.io/yaml"
 )
 
-//func New() (*Config, error) {
-//	return &Config{}, nil
-//}
-//
-//func NewFromYaml(contents []byte) (Config, error) {
-//	config := Config{}
-//	err := yaml.Unmarshal(contents, &config)
-//	if err != nil {
-//		return config, fmt.Errorf("unmarshalling yaml: %w", err)
-//	}
-//
-//	return config, config.Validate()
-//}
-//
-//func (c *Config) Validate() error {
-//	var errs []error
-//
-//	for _, svc := range c.Services {
-//		errs = append(errs, svc.Validate())
-//	}
-//	return errors.Join(errs...)
-//}
+func NewFromYaml(contents []byte) (Service, error) {
+	service := Service{}
+	err := yaml.Unmarshal(contents, &service)
+	if err != nil {
+		return service, fmt.Errorf("unmarshalling yaml: %w", err)
+	}
+
+	return service, service.Validate()
+}
 
 func (s *Service) Validate() error {
 	if s == nil {

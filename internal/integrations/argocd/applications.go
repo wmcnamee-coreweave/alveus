@@ -3,6 +3,7 @@ package argocd
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	argoapisapplication "github.com/argoproj/argo-cd/v3/pkg/apis/application"
 	argov1alpha1 "github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
@@ -88,7 +89,7 @@ func NewApplication(input Input, options ...Option) (argov1alpha1.Application, e
 
 	err := input.Validate()
 	if err != nil {
-		return nil, err
+		return argov1alpha1.Application{}, err
 	}
 
 	sources := make([]argov1alpha1.ApplicationSource, len(input.Sources))
@@ -131,4 +132,8 @@ func NewApplication(input Input, options ...Option) (argov1alpha1.Application, e
 	}
 
 	return app, nil
+}
+
+func FilenameFor(application argov1alpha1.Application) string {
+	return strings.ToLower(fmt.Sprintf("%s-%s.yaml", application.Namespace, application.Name))
 }
