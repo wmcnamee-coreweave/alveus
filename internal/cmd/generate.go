@@ -30,10 +30,9 @@ func NewGenerateCommand() *cobra.Command {
 			if serviceFile == "" || serviceFile == "-" {
 				stat, _ := os.Stdin.Stat()
 				if (stat.Mode() & os.ModeCharDevice) == 0 {
-					_, _ = fmt.Fprintf(os.Stderr, "data is being piped to stdin\n")
 					serviceBytes, err = io.ReadAll(os.Stdin)
 					if err != nil {
-						return fmt.Errorf("failed to read from stdin: %w", err)
+						return fmt.Errorf("reading stdin: %w", err)
 					}
 				} else {
 					return fmt.Errorf("stdin is from a terminal")
@@ -41,7 +40,7 @@ func NewGenerateCommand() *cobra.Command {
 			} else {
 				serviceBytes, err = os.ReadFile(serviceFile)
 				if err != nil {
-					return fmt.Errorf("failed to read from file: %s: %w", serviceFile, err)
+					return fmt.Errorf("reading from file: %s: %w", serviceFile, err)
 				}
 			}
 
@@ -49,20 +48,20 @@ func NewGenerateCommand() *cobra.Command {
 			{
 				service, err = v1alpha1.NewFromYaml(serviceBytes)
 				if err != nil {
-					return fmt.Errorf("failed to construct/validate service definition: %w", err)
+					return fmt.Errorf("constructing/validating service definition: %w", err)
 				}
 			}
 
 			var apps []argov1alpha1.Application
 			apps, err = generateApps(repoURL, "HEAD", service)
 			if err != nil {
-				return fmt.Errorf("failed to generate apps: %w", err)
+				return fmt.Errorf("generating apps: %w", err)
 			}
 
 			var wfs []gocto.Workflow
 			wfs, err = generateWorkflows(service)
 			if err != nil {
-				return fmt.Errorf("failed to generate workflows: %w", err)
+				return fmt.Errorf("generating workflows: %w", err)
 			}
 
 			godump.Dump(apps)
