@@ -1,11 +1,11 @@
 module github.com/ghostsquad/alveus
 
-go 1.24.6
+go 1.25.1
 
 require (
 	github.com/argoproj/argo-cd/v3 v3.1.0
 	github.com/argoproj/argo-rollouts v1.8.3
-	github.com/cakehappens/gocto v0.0.1
+	github.com/cakehappens/gocto v0.2.0
 	github.com/goforj/godump v1.6.0
 	github.com/lithammer/dedent v1.1.0
 	github.com/oklog/run v1.2.0

@@ -211,3 +211,18 @@ Temporary Items
 
 # built binary
 /alveus
+
+# Devenv
+.devenv*
+devenv.local.nix
+
+# For now, ignore these, still learning NIX
+devenv.nix
+devenv.yaml
+.envrc
+
+# direnv
+.direnv
+
+# pre-commit
+.pre-commit-config.yaml
