@@ -1,7 +1,6 @@
 package v1alpha1
 
 import (
-	"errors"
 	"fmt"
 
 	"sigs.k8s.io/yaml"

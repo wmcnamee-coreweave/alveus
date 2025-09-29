@@ -106,7 +106,12 @@ type Destination struct {
 	// ClusterURL specifies the URL of the target cluster's Kubernetes control plane API. This must be set if ClusterName is not set.
 	ClusterURL string `json:"clusterUrl,omitempty,omitzero"`
 	// ClusterName is an alternate way of specifying the target cluster by its symbolic name. This must be set if ClusterNameURL is not set.
-	ClusterName string `json:"clusterName,omitempty,omitzero"`
+	ClusterName string      `json:"clusterName,omitempty,omitzero"`
+	ArgoCDLogin ArgoCDLogin `json:"argocdLogin,omitempty,omitzero"`
+}
+
+type ArgoCDLogin struct {
+	URL string `json:"url,omitempty,omitzero"`
 }
 
 func (d *Destination) Validate() error {

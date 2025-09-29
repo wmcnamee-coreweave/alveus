@@ -59,3 +59,7 @@ release:
 	ln -s $(shell which podman) $(CURDIR)/bin/docker && \
 	export PATH="$(CURDIR)/bin:$(PATH)" && \
 	goreleaser release --snapshot --clean
+
+.PHONY: example
+example: build
+	cd examples && ../alveus generate -s example-service.yaml -r github.com/ghostsquad/fake

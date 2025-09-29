@@ -60,8 +60,8 @@ func NewGenerateCommand() *cobra.Command {
 			var wfs []gocto.Workflow
 			wfs = github.NewWorkflows(service)
 
-			godump.Dump(apps)
-			godump.Dump(wfs)
+			godump.DumpJSON(apps)
+			godump.DumpJSON(wfs)
 
 			return nil
 		},
