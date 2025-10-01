@@ -10,7 +10,7 @@ import (
 
 type Service struct {
 	Name                  string                            `json:"name"`
-	Sources               []Source                          `json:"sources"`
+	Source                Source                            `json:"source"`
 	IgnoreDifferences     argov1alpha1.IgnoreDifferences    `json:"ignoreDifferences,omitempty,omitzero"`
 	PrePromotionAnalysis  *rolloutsv1alpha1.RolloutAnalysis `json:"prePromotionAnalysis,omitempty,omitzero"`
 	PostPromotionAnalysis *rolloutsv1alpha1.RolloutAnalysis `json:"postPromotionAnalysis,omitempty,omitzero"`
@@ -30,15 +30,9 @@ func (s *Service) Validate() error {
 		errs = append(errs, errors.New("service name is required"))
 	}
 
-	if len(s.Sources) == 0 {
-		errs = append(errs, errors.New("at least 1 source is required"))
-	}
-
-	for _, source := range s.Sources {
-		err := source.Validate()
-		if err != nil {
-			errs = append(errs, fmt.Errorf("validating source: %w", err))
-		}
+	err := s.Source.Validate()
+	if err != nil {
+		errs = append(errs, fmt.Errorf("validating source: %w", err))
 	}
 
 	if len(s.DestinationGroups) == 0 {
@@ -107,6 +101,7 @@ type Destination struct {
 	ClusterURL string `json:"clusterUrl,omitempty,omitzero"`
 	// ClusterName is an alternate way of specifying the target cluster by its symbolic name. This must be set if ClusterNameURL is not set.
 	ClusterName string      `json:"clusterName,omitempty,omitzero"`
+	Namespace   string      `json:"namespace,omitempty,omitzero"`
 	ArgoCDLogin ArgoCDLogin `json:"argocdLogin,omitempty,omitzero"`
 }
 

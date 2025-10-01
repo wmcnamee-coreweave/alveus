@@ -3,10 +3,10 @@ package github
 import (
 	"github.com/cakehappens/gocto"
 
-	"github.com/ghostsquad/alveus/api/v1alpha1"
+	"github.com/ghostsquad/alveus/internal/models"
 )
 
-func NewWorkflows(service v1alpha1.Service) []gocto.Workflow {
+func NewWorkflows(service models.Service) []gocto.Workflow {
 	var workflows []gocto.Workflow
 
 	top := gocto.Workflow{
@@ -41,7 +41,7 @@ func NewWorkflows(service v1alpha1.Service) []gocto.Workflow {
 	return workflows
 }
 
-func newDeploymentGroupWorkflows(group v1alpha1.DestinationGroup) (gocto.Workflow, []gocto.Workflow) {
+func newDeploymentGroupWorkflows(group models.DestinationGroup) (gocto.Workflow, []gocto.Workflow) {
 	var subWorkflows []gocto.Workflow
 
 	groupWf := gocto.Workflow{
@@ -59,7 +59,7 @@ func newDeploymentGroupWorkflows(group v1alpha1.DestinationGroup) (gocto.Workflo
 	return groupWf, subWorkflows
 }
 
-func newDeploymentWorkflow(destination v1alpha1.Destination) gocto.Workflow {
+func newDeploymentWorkflow(destination models.Destination) gocto.Workflow {
 	jobName := destination.FriendlyName
 	job := newDeployJob(jobName, destination)
 

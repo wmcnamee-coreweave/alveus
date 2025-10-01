@@ -6,7 +6,7 @@ import (
 	"github.com/cakehappens/gocto"
 	"github.com/lithammer/dedent"
 
-	"github.com/ghostsquad/alveus/api/v1alpha1"
+	"github.com/ghostsquad/alveus/internal/models"
 )
 
 func newDeployGroupJob(name string, wf gocto.Workflow) gocto.Job {
@@ -20,16 +20,12 @@ func newDeployGroupJob(name string, wf gocto.Workflow) gocto.Job {
 	return job
 }
 
-func newDeployJob(name string, destination v1alpha1.Destination) gocto.Job {
+func newDeployJob(name string, destination models.Destination) gocto.Job {
 	const (
 		EnvNameArgoCDURL             = "ARGOCD_URL"
 		EnvNameArgoCDApplicationFile = "ARGOCD_APPLICATION_FILE"
 		EnvNameGitCommitMessage      = "GIT_COMMIT_MESSAGE"
 		EnvNameNewTargetRevision     = "ARGOCD_APPLICATION_NEW_TARGET_REVISION"
-	)
-
-	const (
-		DefaultBranch = "main"
 	)
 
 	job := gocto.Job{
@@ -41,7 +37,7 @@ func newDeployJob(name string, destination v1alpha1.Destination) gocto.Job {
 			},
 		},
 		Env: map[string]string{
-			EnvNameArgoCDURL:             destination.ArgoCDLogin.URL,
+			EnvNameArgoCDURL:             destination.ArgoCD.LoginURL,
 			EnvNameArgoCDApplicationFile: "fake-application-file.yaml",
 			EnvNameGitCommitMessage:      fmt.Sprintf("feat: 🚀 deploy to %s", destination.FriendlyName),
 			EnvNameNewTargetRevision:     "123new",
@@ -53,7 +49,7 @@ func newDeployJob(name string, destination v1alpha1.Destination) gocto.Job {
 			{
 				Uses: "checkout@v4",
 				With: map[string]any{
-					"ref": DefaultBranch,
+					"ref": destination.GitHub.Checkout.Branch,
 					// otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
 					"persist-credentials": false,
 					// otherwise, you will fail to push refs to dest repo
@@ -87,7 +83,7 @@ func newDeployJob(name string, destination v1alpha1.Destination) gocto.Job {
 				Uses: "actions-js/push@v1.5",
 				With: map[string]any{
 					"github_token": "${{ secrets.GITHUB_TOKEN }}",
-					"branch":       DefaultBranch,
+					"branch":       destination.GitHub.Checkout.Branch,
 				},
 			},
 			{

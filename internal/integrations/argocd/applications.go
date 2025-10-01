@@ -13,21 +13,24 @@ import (
 )
 
 type Options struct {
-	Namespace         string
-	Labels            map[string]string
-	Annotations       map[string]string
-	IgnoreDifferences argov1alpha1.IgnoreDifferences
-	SyncPolicy        *argov1alpha1.SyncPolicy
-	Project           string
+	ApplicationNamespace string
+	Labels               map[string]string
+	Annotations          map[string]string
+	IgnoreDifferences    argov1alpha1.IgnoreDifferences
+	SyncPolicy           *argov1alpha1.SyncPolicy
+	Project              string
+	Source               v1alpha1.Source
 }
 
 type Option func(*Options)
 
 type Input struct {
-	Name           string
-	RepoURL        string
-	TargetRevision string
-	Sources        []v1alpha1.Source
+	Name                   string
+	RepoURL                string
+	TargetRevision         string
+	DestinationNamespace   string
+	DestinationClusterName string
+	DestinationClusterURL  string
 }
 
 func (in *Input) Validate() error {
@@ -45,33 +48,40 @@ func (in *Input) Validate() error {
 		errs = append(errs, fmt.Errorf("targetRevision is required"))
 	}
 
-	if len(in.Sources) == 0 {
-		errs = append(errs, fmt.Errorf("at least one source is required"))
+	if in.DestinationNamespace == "" {
+		errs = append(errs, fmt.Errorf("destinationNamespace is required"))
 	}
 
-	for _, source := range in.Sources {
-		if source.Path == "" {
-			errs = append(errs, fmt.Errorf("sources[*].path is required"))
-		}
+	if in.DestinationClusterName == "" && in.DestinationClusterURL == "" {
+		errs = append(errs, fmt.Errorf("destinationClusterName or destinationClusterURL is required"))
+	}
+
+	if in.DestinationClusterName != "" && in.DestinationClusterURL != "" {
+		errs = append(errs, fmt.Errorf("destinationClusterName and destinationClusterURL are mutually exclusive"))
 	}
 
 	return errors.Join(errs...)
+}
+
+func WithSource(src v1alpha1.Source) Option {
+	return func(o *Options) {
+		o.Source = src
+	}
 }
 
 func FromServiceAPI(service v1alpha1.Service) Option {
 	return func(o *Options) {
 		o.SyncPolicy = service.SyncPolicy
 		o.IgnoreDifferences = service.IgnoreDifferences
-		o.Namespace = service.DestinationNamespace
 	}
 }
 
 func NewApplication(input Input, options ...Option) (argov1alpha1.Application, error) {
 	opts := &Options{
-		Namespace:   "argocd",
-		Labels:      map[string]string{},
-		Annotations: map[string]string{},
-		Project:     "default",
+		ApplicationNamespace: "argocd",
+		Labels:               map[string]string{},
+		Annotations:          map[string]string{},
+		Project:              "default",
 	}
 	for _, o := range options {
 		o(opts)
@@ -92,23 +102,20 @@ func NewApplication(input Input, options ...Option) (argov1alpha1.Application, e
 		return argov1alpha1.Application{}, err
 	}
 
-	sources := make([]argov1alpha1.ApplicationSource, len(input.Sources))
-	for i, source := range input.Sources {
-		if source.Include == "" {
-			source.Include = "{*.yml,*.yaml}"
-		}
+	source := argov1alpha1.ApplicationSource{
+		RepoURL:        input.RepoURL,
+		Path:           opts.Source.Path,
+		TargetRevision: input.TargetRevision,
+		Directory: &argov1alpha1.ApplicationSourceDirectory{
+			Recurse: true,
+			Jsonnet: opts.Source.Jsonnet,
+			Exclude: opts.Source.Exclude,
+			Include: opts.Source.Include,
+		},
+	}
 
-		sources[i] = argov1alpha1.ApplicationSource{
-			RepoURL:        input.RepoURL,
-			Path:           source.Path,
-			TargetRevision: input.TargetRevision,
-			Directory: &argov1alpha1.ApplicationSourceDirectory{
-				Recurse: true,
-				Jsonnet: source.Jsonnet,
-				Exclude: source.Exclude,
-				Include: source.Include,
-			},
-		}
+	if source.Directory.Include == "" {
+		source.Directory.Include = "{*.yml,*.yaml}"
 	}
 
 	app := argov1alpha1.Application{
@@ -118,16 +125,20 @@ func NewApplication(input Input, options ...Option) (argov1alpha1.Application, e
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        input.Name,
-			Namespace:   opts.Namespace,
+			Namespace:   opts.ApplicationNamespace,
 			Labels:      labels,
 			Annotations: annotations,
 		},
 		Spec: argov1alpha1.ApplicationSpec{
-			Destination:       argov1alpha1.ApplicationDestination{},
+			Destination: argov1alpha1.ApplicationDestination{
+				Server:    input.DestinationClusterURL,
+				Namespace: input.DestinationNamespace,
+				Name:      input.DestinationClusterName,
+			},
 			Project:           opts.Project,
 			SyncPolicy:        opts.SyncPolicy,
 			IgnoreDifferences: opts.IgnoreDifferences,
-			Sources:           sources,
+			Source:            &source,
 		},
 	}
 

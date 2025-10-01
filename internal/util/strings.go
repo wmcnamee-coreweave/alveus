@@ -2,6 +2,7 @@ package util
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 )
 
@@ -21,4 +22,32 @@ func RemoveDupOf(s string, target rune) string {
 		}
 	}
 	return buf.String()
+}
+
+func SanitizeNameForKubernetes(name string) (string, error) {
+	newName := strings.Map(func(r rune) rune {
+		switch {
+		case '0' <= r && r <= '9':
+			fallthrough
+		case 'A' <= r && r <= 'Z':
+			fallthrough
+		case 'a' <= r && r <= 'z':
+			return r
+		default:
+			return '-'
+		}
+	}, name)
+
+	newName = strings.Trim(newName, "-")
+	newName = RemoveDupOf(newName, '-')
+
+	return newName, CheckNameLengthForKubernetes(newName)
+}
+
+func CheckNameLengthForKubernetes(name string) error {
+	if len(name) > 63 {
+		return fmt.Errorf("name length exceeds 63 characters: %s (%d characters)", name, len(name))
+	}
+
+	return nil
 }
