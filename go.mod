@@ -1,6 +1,6 @@
 module github.com/ghostsquad/alveus
 
-go 1.25.1
+go 1.25.2
 
 require (
 	github.com/argoproj/argo-cd/v3 v3.1.0

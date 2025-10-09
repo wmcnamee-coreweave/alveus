@@ -5,5 +5,5 @@ destinationGroups:
   name: staging
 destinationNamespace: example
 name: example-service
-sources:
-- path: ./examples/example-service/manifests
+source:
+  path: ./examples/example-service/manifests

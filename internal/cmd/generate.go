@@ -13,6 +13,7 @@ import (
 	"github.com/ghostsquad/alveus/api/v1alpha1"
 	"github.com/ghostsquad/alveus/internal/integrations/argocd"
 	"github.com/ghostsquad/alveus/internal/integrations/github"
+	"github.com/ghostsquad/alveus/internal/models"
 	"github.com/ghostsquad/alveus/internal/util"
 )
 
@@ -58,7 +59,8 @@ func NewGenerateCommand() *cobra.Command {
 			}
 
 			var wfs []gocto.Workflow
-			wfs = github.NewWorkflows(service)
+			serviceModel := models.NewServiceFromV1Alpha1(service)
+			wfs = github.NewWorkflows(serviceModel)
 
 			godump.DumpJSON(apps)
 			godump.DumpJSON(wfs)
@@ -88,7 +90,6 @@ func generateApps(repoURL, targetRevision string, service v1alpha1.Service) ([]a
 				Name:           util.Join("-", service.Name, group.Name, dest.FriendlyName),
 				RepoURL:        repoURL,
 				TargetRevision: targetRevision,
-				Sources:        service.Sources,
 			}, argocd.FromServiceAPI(service))
 
 			if err != nil {
