@@ -14,6 +14,11 @@
 
 ## Introduction
 
+> alveus (_plural_ alvei)
+>
+>    1. (_rare, now usually law_) The bed or channel of a river, especially when the river flowing in its natural or ordinary course; (also) the trough of the sea.
+>    2. (_neuroanatomy_) A thin layer of medullary nerve fibers on the ventricular surface of the hippocampus.
+
 Dynamically creates GitHub workflows to allow for progressive delivery of Kubernetes resources across environments.
 
 This is designed as a replacement for [Kargo](https://docs.kargo.io/).

@@ -1,0 +1,7 @@
+jobs:
+  cluster-1:
+    name: cluster-1
+    uses: .github/workflows/example-service-cluster-1.yml
+name: example-service-staging
+"on":
+  workflow_dispatch: {}

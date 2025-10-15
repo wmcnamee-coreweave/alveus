@@ -1,3 +1,8 @@
+concurrency:
+  group: cluster-1
+defaults:
+  run:
+    shell: bash
 jobs:
   cluster-1:
     defaults:
@@ -44,8 +49,6 @@ jobs:
       run: "\nargocd app create --upsert --file \"${ARGOCD_APPLICATION_FILE}\" \\\n\t--grpc-web
         \\\n\t--sync-retry-backoff-factor 2 \\\n\t--sync-retry-backoff-max-duration
         3m0s \\\n\t--sync-retry-limit 2 \\\n\t;\n"
-name: staging
+name: example-service-cluster-1
 "on":
-  pull_request: {}
-  push: {}
   workflow_dispatch: {}

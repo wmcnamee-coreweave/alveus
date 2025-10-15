@@ -12,19 +12,15 @@ func NewWorkflows(service v1alpha1.Service) []gocto.Workflow {
 	top := gocto.Workflow{
 		Name: service.Name,
 		On: gocto.WorkflowOn{
-			Dispatch: gocto.OnDispatch{},
-			Push: gocto.OnPush{
-				OnPaths:    gocto.OnPaths{},
-				OnBranches: gocto.OnBranches{},
-				OnTags:     gocto.OnTags{},
-			},
+			Dispatch: &gocto.OnDispatch{},
+			Call:     &gocto.OnCall{},
 		},
 		Jobs: make(map[string]gocto.Job),
 	}
 
 	var prevGroupJob *gocto.Job
 	for _, dg := range service.DestinationGroups {
-		dgWf, subWfs := newDeploymentGroupWorkflows(dg)
+		dgWf, subWfs := newDeploymentGroupWorkflows(service.Name, dg)
 		workflows = append(workflows, dgWf)
 		workflows = append(workflows, subWfs...)
 
@@ -41,30 +37,27 @@ func NewWorkflows(service v1alpha1.Service) []gocto.Workflow {
 	return workflows
 }
 
-func newDeploymentGroupWorkflows(group v1alpha1.DestinationGroup) (gocto.Workflow, []gocto.Workflow) {
+func newDeploymentGroupWorkflows(namePrefix string, group v1alpha1.DestinationGroup) (gocto.Workflow, []gocto.Workflow) {
 	var subWorkflows []gocto.Workflow
 
 	groupWf := gocto.Workflow{
-		Name: group.Name,
+		Name: namePrefix + "-" + group.Name,
+		On: gocto.WorkflowOn{
+			Dispatch: &gocto.OnDispatch{},
+		},
 		Jobs: make(map[string]gocto.Job),
 	}
 
 	for _, dest := range group.Destinations {
-		wf := newDeploymentWorkflow(dest)
-		job := newDeployJob(newDeployJobInput{
-			name:           dest.FriendlyName,
-			destination:    dest,
-			checkoutBranch: "",
-			argoCDLoginURL: "",
-		})
-		groupWf.Jobs[dest.FriendlyName] = job
+		wf := newDeploymentWorkflow(namePrefix, dest)
+		groupWf.Jobs[dest.FriendlyName] = newDeployGroupJob(dest.FriendlyName, wf)
 		subWorkflows = append(subWorkflows, wf)
 	}
 
 	return groupWf, subWorkflows
 }
 
-func newDeploymentWorkflow(destination v1alpha1.Destination) gocto.Workflow {
+func newDeploymentWorkflow(namePrefix string, destination v1alpha1.Destination) gocto.Workflow {
 	jobName := destination.FriendlyName
 	job := newDeployJob(newDeployJobInput{
 		name:           jobName,
@@ -74,8 +67,10 @@ func newDeploymentWorkflow(destination v1alpha1.Destination) gocto.Workflow {
 	})
 
 	wf := gocto.Workflow{
-		Name: destination.FriendlyName,
-		On:   gocto.WorkflowOn{},
+		Name: namePrefix + "-" + destination.FriendlyName,
+		On: gocto.WorkflowOn{
+			Dispatch: &gocto.OnDispatch{},
+		},
 		Concurrency: gocto.Concurrency{
 			Group:            destination.FriendlyName,
 			CancelInProgress: false,

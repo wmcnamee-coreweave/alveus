@@ -1,9 +1,8 @@
 jobs:
   staging:
     name: staging
-    uses: .github/workflows/staging.yml
+    uses: .github/workflows/example-service-staging.yml
 name: example-service
 "on":
-  pull_request: {}
-  push: {}
+  workflow_call: {}
   workflow_dispatch: {}
