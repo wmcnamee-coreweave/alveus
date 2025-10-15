@@ -2,7 +2,7 @@ SHELL := bash
 
 .PHONY: setup
 setup:
-	echo "setup"
+	mise install
 
 .PHONY: test
 test: build
