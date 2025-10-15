@@ -13,7 +13,6 @@ import (
 	"github.com/go-git/go-billy/v6/osfs"
 	billyutil "github.com/go-git/go-billy/v6/util"
 	"github.com/spf13/cobra"
-	"sigs.k8s.io/yaml"
 
 	"github.com/ghostsquad/alveus/api/v1alpha1"
 	"github.com/ghostsquad/alveus/internal/constants"
@@ -135,7 +134,7 @@ func writeApps(fs billy.Filesystem, basepath string, apps []argov1alpha1.Applica
 	for _, app := range apps {
 		filename := argocd.FilenameFor(app)
 		fullFilename := filepath.Join(basepath, filename)
-		fileBytes, err := yaml.Marshal(app)
+		fileBytes, err := util.YamlMarshalWithOptions(app)
 		if err != nil {
 			return fmt.Errorf("marshalling application to yaml: %w", err)
 		}
@@ -175,7 +174,7 @@ func writeWorkflows(fs billy.Filesystem, basepath string, wfs []gocto.Workflow) 
 	for _, wf := range wfs {
 		filename := expectedPrefix + wf.GetFilename()
 		fullFilename := filepath.Join(basepath, filename)
-		fileBytes, err := yaml.Marshal(wf)
+		fileBytes, err := util.YamlMarshalWithOptions(wf)
 		if err != nil {
 			return fmt.Errorf("marshalling workflow to yaml: %w", err)
 		}

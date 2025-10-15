@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	"github.com/cakehappens/gocto"
-	"github.com/lithammer/dedent"
 
 	"github.com/ghostsquad/alveus/api/v1alpha1"
+	"github.com/ghostsquad/alveus/internal/util"
 )
 
 func newDeployGroupJob(name string, wf gocto.Workflow) gocto.Job {
@@ -68,9 +68,9 @@ func newDeployJob(input newDeployJobInput) gocto.Job {
 			},
 			{
 				Name: "git-config",
-				Run: dedent.Dedent(`
-					git config --global user.name "${{ github.actor }}"
-    			git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+				Run: util.SprintfDedent(`
+					git config --global user.name '${{ github.actor }}'
+					git config --global user.email '${{ github.actor }}@users.noreply.github.com'
 				`),
 			},
 			{
@@ -78,16 +78,17 @@ func newDeployJob(input newDeployJobInput) gocto.Job {
 			},
 			{
 				Name: "update-application-yaml",
-				Run: fmt.Sprintf(dedent.Dedent(`
-					yq e '.spec.source.targetRevision = "${{ env.%s }}"' "${%s}"
-				`), EnvNameNewTargetRevision, EnvNameArgoCDApplicationFile),
+				Run: util.SprintfDedent(`
+					yq e '.spec.source.targetRevision = "${{ env.%s }}"' \
+					'${%s}'
+				`, EnvNameNewTargetRevision, EnvNameArgoCDApplicationFile),
 			},
 			{
 				Name: "git-add-commit",
-				Run: fmt.Sprintf(dedent.Dedent(`
+				Run: util.SprintfDedent(`
 					git add "${%s}"
 					git commit -m "${%s}"
-				`), EnvNameArgoCDApplicationFile, EnvNameGitCommitMessage),
+				`, EnvNameArgoCDApplicationFile, EnvNameGitCommitMessage),
 			},
 			{
 				Uses: "actions-js/push@v1.5",
@@ -98,20 +99,20 @@ func newDeployJob(input newDeployJobInput) gocto.Job {
 			},
 			{
 				Name: "argocd-login",
-				Run: fmt.Sprintf(dedent.Dedent(`
+				Run: util.SprintfDedent(`
 					argocd login "${%s}" --grpc-web --skip-test-tls
-				`), EnvNameArgoCDURL),
+				`, EnvNameArgoCDURL),
 			},
 			{
 				Name: "argocd-upsert",
-				Run: fmt.Sprintf(dedent.Dedent(`
+				Run: util.SprintfDedent(`
 					argocd app create --upsert --file "${%s}" \
 						--grpc-web \
 						--sync-retry-backoff-factor 2 \
 						--sync-retry-backoff-max-duration 3m0s \
 						--sync-retry-limit 2 \
 						;
-				`), EnvNameArgoCDApplicationFile),
+				`, EnvNameArgoCDApplicationFile),
 			},
 		},
 	}

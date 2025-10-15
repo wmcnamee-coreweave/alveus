@@ -4,7 +4,18 @@ import (
 	"bytes"
 	"fmt"
 	"strings"
+
+	"github.com/lithammer/dedent"
 )
+
+func SprintfDedent(format string, a ...any) string {
+	val := format
+	val = strings.Replace(val, "\t", "  ", -1)
+	val = dedent.Dedent(val)
+	val = fmt.Sprintf(val, a...)
+	val = strings.TrimSpace(val)
+	return val
+}
 
 func Join(sep string, vals ...string) string {
 	return strings.Join(vals, sep)
