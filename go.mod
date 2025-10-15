@@ -6,7 +6,7 @@ require (
 	github.com/argoproj/argo-cd/v3 v3.1.0
 	github.com/argoproj/argo-rollouts v1.8.3
 	github.com/cakehappens/gocto v0.2.0
-	github.com/goforj/godump v1.6.0
+	github.com/go-git/go-billy/v6 v6.0.0-20251013092257-9a6bbea5b11a
 	github.com/lithammer/dedent v1.1.0
 	github.com/oklog/run v1.2.0
 	github.com/onsi/ginkgo/v2 v2.24.0
@@ -41,7 +41,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/chai2010/gettext-go v1.0.3 // indirect
 	github.com/cloudflare/circl v1.6.1 // indirect
-	github.com/cyphar/filepath-securejoin v0.4.1 // indirect
+	github.com/cyphar/filepath-securejoin v0.5.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/distribution/reference v0.6.0 // indirect
@@ -131,7 +131,7 @@ require (
 	golang.org/x/net v0.43.0 // indirect
 	golang.org/x/oauth2 v0.30.0 // indirect
 	golang.org/x/sync v0.16.0 // indirect
-	golang.org/x/sys v0.35.0 // indirect
+	golang.org/x/sys v0.37.0 // indirect
 	golang.org/x/term v0.34.0 // indirect
 	golang.org/x/text v0.28.0 // indirect
 	golang.org/x/time v0.12.0 // indirect

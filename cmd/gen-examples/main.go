@@ -40,18 +40,22 @@ func createServiceFile() error {
 		Source: v1alpha1.Source{
 			Path: "./examples/example-service/manifests",
 		},
+		IgnoreDifferences:     nil,
+		PrePromotionAnalysis:  nil,
+		PostPromotionAnalysis: nil,
 		DestinationGroups: []v1alpha1.DestinationGroup{
 			{
 				Name: "staging",
 				Destinations: []v1alpha1.Destination{
 					{
-						FriendlyName: "staging-1",
+						FriendlyName: "cluster-1",
 						ClusterURL:   "https://does-not-exist.local",
 					},
 				},
 			},
 		},
 		DestinationNamespace: "example",
+		SyncPolicy:           nil,
 	}
 
 	serviceBytes, err := yaml.Marshal(service)

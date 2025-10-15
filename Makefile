@@ -62,4 +62,6 @@ release:
 
 .PHONY: example
 example: build
-	cd examples && ../alveus generate -s example-service.yaml -r github.com/ghostsquad/fake
+	cd examples && ../alveus generate \
+		-s example-service.yaml \
+		-r github.com/ghostsquad/fake

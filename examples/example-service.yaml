@@ -1,7 +1,7 @@
 destinationGroups:
 - destinations:
   - clusterUrl: https://does-not-exist.local
-    friendlyName: staging-1
+    friendlyName: cluster-1
   name: staging
 destinationNamespace: example
 name: example-service

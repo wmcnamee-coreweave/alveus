@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  creationTimestamp: null
+  name: example-service-staging-cluster-1
+  namespace: argocd
+spec:
+  destination:
+    namespace: example
+    server: https://does-not-exist.local
+  project: default
+  source:
+    directory:
+      include: '{*.yml,*.yaml}'
+      jsonnet: {}
+      recurse: true
+    repoURL: github.com/ghostsquad/fake
+    targetRevision: HEAD
+status:
+  health: {}
+  sourceHydrator: {}
+  summary: {}
+  sync:
+    comparedTo:
+      destination: {}
+      source:
+        repoURL: ""
+    status: ""
