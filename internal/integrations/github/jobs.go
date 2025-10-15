@@ -6,7 +6,7 @@ import (
 	"github.com/cakehappens/gocto"
 	"github.com/lithammer/dedent"
 
-	"github.com/ghostsquad/alveus/internal/models"
+	"github.com/ghostsquad/alveus/api/v1alpha1"
 )
 
 func newDeployGroupJob(name string, wf gocto.Workflow) gocto.Job {
@@ -20,13 +20,23 @@ func newDeployGroupJob(name string, wf gocto.Workflow) gocto.Job {
 	return job
 }
 
-func newDeployJob(name string, destination models.Destination) gocto.Job {
+type newDeployJobInput struct {
+	name           string
+	destination    v1alpha1.Destination
+	checkoutBranch string
+	argoCDLoginURL string
+}
+
+func newDeployJob(input newDeployJobInput) gocto.Job {
 	const (
 		EnvNameArgoCDURL             = "ARGOCD_URL"
 		EnvNameArgoCDApplicationFile = "ARGOCD_APPLICATION_FILE"
 		EnvNameGitCommitMessage      = "GIT_COMMIT_MESSAGE"
 		EnvNameNewTargetRevision     = "ARGOCD_APPLICATION_NEW_TARGET_REVISION"
 	)
+
+	name := input.name
+	destination := input.destination
 
 	job := gocto.Job{
 		Name:   name,
@@ -37,7 +47,7 @@ func newDeployJob(name string, destination models.Destination) gocto.Job {
 			},
 		},
 		Env: map[string]string{
-			EnvNameArgoCDURL:             destination.ArgoCD.LoginURL,
+			EnvNameArgoCDURL:             input.argoCDLoginURL,
 			EnvNameArgoCDApplicationFile: "fake-application-file.yaml",
 			EnvNameGitCommitMessage:      fmt.Sprintf("feat: 🚀 deploy to %s", destination.FriendlyName),
 			EnvNameNewTargetRevision:     "123new",
@@ -49,7 +59,7 @@ func newDeployJob(name string, destination models.Destination) gocto.Job {
 			{
 				Uses: "checkout@v4",
 				With: map[string]any{
-					"ref": destination.GitHub.Checkout.Branch,
+					"ref": input.checkoutBranch,
 					// otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
 					"persist-credentials": false,
 					// otherwise, you will fail to push refs to dest repo
@@ -83,7 +93,7 @@ func newDeployJob(name string, destination models.Destination) gocto.Job {
 				Uses: "actions-js/push@v1.5",
 				With: map[string]any{
 					"github_token": "${{ secrets.GITHUB_TOKEN }}",
-					"branch":       destination.GitHub.Checkout.Branch,
+					"branch":       input.checkoutBranch,
 				},
 			},
 			{
