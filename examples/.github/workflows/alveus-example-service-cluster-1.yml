@@ -33,7 +33,9 @@ jobs:
         git config --global user.email '${{ github.actor }}@users.noreply.github.com'
     - uses: frenck/action-setup-yq@v1
     - name: update-application-yaml
-      run: "yq e '.spec.source.targetRevision = \"${{ env.ARGOCD_APPLICATION_NEW_TARGET_REVISION }}\"' \\\n'${ARGOCD_APPLICATION_FILE}'"
+      run: |-
+        yq e '.spec.source.targetRevision = "${{ env.ARGOCD_APPLICATION_NEW_TARGET_REVISION }}"' \
+        '${ARGOCD_APPLICATION_FILE}'
     - name: git-add-commit
       run: |-
         git add "${ARGOCD_APPLICATION_FILE}"
@@ -45,4 +47,10 @@ jobs:
     - name: argocd-login
       run: argocd login "${ARGOCD_URL}" --grpc-web --skip-test-tls
     - name: argocd-upsert
-      run: "argocd app create --upsert --file \"${ARGOCD_APPLICATION_FILE}\" \\\n  --grpc-web \\\n  --sync-retry-backoff-factor 2 \\\n  --sync-retry-backoff-max-duration 3m0s \\\n  --sync-retry-limit 2 \\\n  ;"
+      run: |-
+        argocd app create --upsert --file "${ARGOCD_APPLICATION_FILE}" \
+          --grpc-web \
+          --sync-retry-backoff-factor 2 \
+          --sync-retry-backoff-max-duration 3m0s \
+          --sync-retry-limit 2 \
+          ;

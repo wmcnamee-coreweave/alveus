@@ -211,3 +211,5 @@ replace (
 	k8s.io/sample-cli-plugin => k8s.io/sample-cli-plugin v0.33.1
 	k8s.io/sample-controller => k8s.io/sample-controller v0.33.1
 )
+
+replace github.com/goccy/go-yaml => github.com/ghostsquad/goccy-go-yaml v1.18.0-fork-1
