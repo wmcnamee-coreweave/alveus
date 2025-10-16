@@ -17,6 +17,8 @@ require (
 	sigs.k8s.io/yaml v1.6.0
 )
 
+replace github.com/goccy/go-yaml => github.com/ghostsquad/goccy-go-yaml v1.18.0-fork-3
+
 require (
 	cloud.google.com/go/compute/metadata v0.6.0 // indirect
 	dario.cat/mergo v1.0.2 // indirect
@@ -211,5 +213,3 @@ replace (
 	k8s.io/sample-cli-plugin => k8s.io/sample-cli-plugin v0.33.1
 	k8s.io/sample-controller => k8s.io/sample-controller v0.33.1
 )
-
-replace github.com/goccy/go-yaml => github.com/ghostsquad/goccy-go-yaml v1.18.0-fork-1
