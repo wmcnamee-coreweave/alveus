@@ -1,6 +1,6 @@
 module github.com/ghostsquad/alveus
 
-go 1.25.2
+go 1.25.3
 
 require (
 	github.com/argoproj/argo-cd/v3 v3.1.0
@@ -14,7 +14,6 @@ require (
 	github.com/onsi/gomega v1.38.0
 	github.com/spf13/cobra v1.9.1
 	k8s.io/apimachinery v0.33.1
-	sigs.k8s.io/yaml v1.6.0
 )
 
 replace github.com/goccy/go-yaml => github.com/ghostsquad/goccy-go-yaml v1.18.0-fork-3
@@ -167,6 +166,7 @@ require (
 	sigs.k8s.io/kustomize/kyaml v0.19.0 // indirect
 	sigs.k8s.io/randfill v1.0.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.7.0 // indirect
+	sigs.k8s.io/yaml v1.6.0 // indirect
 )
 
 replace (

@@ -1,9 +1,9 @@
-destinationGroups:
-- destinations:
-  - clusterUrl: https://does-not-exist.local
-    friendlyName: cluster-1
-  name: staging
-destinationNamespace: example
 name: example-service
 source:
   path: ./examples/example-service/manifests
+destinationGroups:
+- name: staging
+  destinations:
+  - applicationdestination:
+      server: http://kube.local
+destinationNamespace: my-namespace

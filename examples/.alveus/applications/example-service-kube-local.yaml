@@ -1,7 +1,7 @@
 kind: Application
 apiVersion: argoproj.io/v1alpha1
 metadata:
-  name: example-service-staging-cluster-1
+  name: example-service-kube-local
   namespace: argocd
 spec:
   source:
@@ -11,6 +11,6 @@ spec:
       recurse: true
       include: "{*.yml,*.yaml}"
   destination:
-    server: https://does-not-exist.local
-    namespace: example
+    server: http://kube.local
+    namespace: my-namespace
   project: default

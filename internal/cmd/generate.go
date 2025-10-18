@@ -97,18 +97,50 @@ func NewGenerateCommand() *cobra.Command {
 	return cmd
 }
 
+type generateNameInput struct {
+	serviceName string
+	groupName   string
+	destination argov1alpha1.ApplicationDestination
+	strategy    v1alpha1.ApplicationNameUniquenessStrategy
+}
+
+func generateNameByStrategy(input generateNameInput) string {
+	components := []string{
+		input.serviceName,
+	}
+
+	if input.strategy.IncludeGroup {
+		components = append(components, input.groupName)
+	}
+
+	components = append(components, argocd.CoalesceSanitizeDestination(input.destination))
+
+	if input.strategy.IncludeDestinationNamespace {
+		components = append(components, input.destination.Namespace)
+	}
+
+	return strings.ToLower(util.Join("-", components...))
+}
+
 func generateApps(repoURL, targetRevision string, service v1alpha1.Service) ([]argov1alpha1.Application, error) {
 	var apps []argov1alpha1.Application
 
 	for _, group := range service.DestinationGroups {
 		for _, dest := range group.Destinations {
+			name := generateNameByStrategy(
+				generateNameInput{
+					serviceName: service.Name,
+					groupName:   group.Name,
+					destination: *dest.ApplicationDestination,
+					strategy:    v1alpha1.ApplicationNameUniquenessStrategy{},
+				},
+			)
+
 			app, err := argocd.NewApplication(argocd.Input{
-				Name:                   util.Join("-", service.Name, group.Name, dest.FriendlyName),
-				RepoURL:                repoURL,
-				TargetRevision:         targetRevision,
-				DestinationNamespace:   service.DestinationNamespace,
-				DestinationClusterName: dest.ClusterName,
-				DestinationClusterURL:  dest.ClusterURL,
+				Name:           name,
+				RepoURL:        repoURL,
+				TargetRevision: targetRevision,
+				Destination:    *dest.ApplicationDestination,
 			}, argocd.FromServiceAPI(service))
 
 			if err != nil {

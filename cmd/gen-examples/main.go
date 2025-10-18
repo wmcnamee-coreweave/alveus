@@ -6,8 +6,9 @@ import (
 	"os"
 	"syscall"
 
+	argov1alpha1 "github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
+	"github.com/goccy/go-yaml"
 	"github.com/oklog/run"
-	"sigs.k8s.io/yaml"
 
 	"github.com/ghostsquad/alveus/api/v1alpha1"
 )
@@ -35,7 +36,7 @@ func main() {
 }
 
 func createServiceFile() error {
-	service := v1alpha1.Service{
+	service := &v1alpha1.Service{
 		Name: "example-service",
 		Source: v1alpha1.Source{
 			Path: "./examples/example-service/manifests",
@@ -48,13 +49,15 @@ func createServiceFile() error {
 				Name: "staging",
 				Destinations: []v1alpha1.Destination{
 					{
-						FriendlyName: "cluster-1",
-						ClusterURL:   "https://does-not-exist.local",
+						ApplicationDestination: &argov1alpha1.ApplicationDestination{
+							Server: "http://kube.local",
+						},
+						ArgoCDLogin: v1alpha1.ArgoCDLogin{},
 					},
 				},
 			},
 		},
-		DestinationNamespace: "example",
+		DestinationNamespace: "my-namespace",
 		SyncPolicy:           nil,
 	}
 

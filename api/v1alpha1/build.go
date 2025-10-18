@@ -3,15 +3,36 @@ package v1alpha1
 import (
 	"fmt"
 
-	"sigs.k8s.io/yaml"
+	"github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
+	"github.com/ghostsquad/alveus/internal/util"
+	"github.com/goccy/go-yaml"
 )
 
 func NewFromYaml(contents []byte) (Service, error) {
-	service := Service{}
-	err := yaml.Unmarshal(contents, &service)
+	service := &Service{}
+	err := yaml.Unmarshal(contents, service)
 	if err != nil {
-		return service, fmt.Errorf("unmarshalling yaml: %w", err)
+		return *service, fmt.Errorf("unmarshalling yaml: %w", err)
 	}
 
-	return service, service.Validate()
+	service.Inflate()
+
+	return *service, service.Validate()
+}
+
+func (s *Service) Inflate() {
+	for gIdx, group := range s.DestinationGroups {
+		for dIdx, dest := range group.Destinations {
+			if dest.ApplicationDestination == nil {
+				dest.ApplicationDestination = &v1alpha1.ApplicationDestination{}
+				s.DestinationGroups[gIdx].Destinations[dIdx] = dest
+			}
+
+			dest.Namespace = util.CoalesceStrings(
+				dest.Namespace,
+				group.DestinationNamespace,
+				s.DestinationNamespace,
+			)
+		}
+	}
 }

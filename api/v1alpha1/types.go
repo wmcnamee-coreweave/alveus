@@ -9,14 +9,20 @@ import (
 )
 
 type Service struct {
-	Name                  string                            `json:"name"`
-	Source                Source                            `json:"source"`
-	IgnoreDifferences     argov1alpha1.IgnoreDifferences    `json:"ignoreDifferences,omitempty,omitzero"`
-	PrePromotionAnalysis  *rolloutsv1alpha1.RolloutAnalysis `json:"prePromotionAnalysis,omitempty,omitzero"`
-	PostPromotionAnalysis *rolloutsv1alpha1.RolloutAnalysis `json:"postPromotionAnalysis,omitempty,omitzero"`
-	DestinationGroups     []DestinationGroup                `json:"destinationGroups"`
-	DestinationNamespace  string                            `json:"destinationNamespace"`
-	SyncPolicy            *argov1alpha1.SyncPolicy          `json:"syncPolicy,omitempty,omitzero"`
+	Name                              string                            `json:"name"`
+	Source                            Source                            `json:"source"`
+	IgnoreDifferences                 argov1alpha1.IgnoreDifferences    `json:"ignoreDifferences,omitempty,omitzero"`
+	PrePromotionAnalysis              *rolloutsv1alpha1.RolloutAnalysis `json:"prePromotionAnalysis,omitempty,omitzero"`
+	PostPromotionAnalysis             *rolloutsv1alpha1.RolloutAnalysis `json:"postPromotionAnalysis,omitempty,omitzero"`
+	DestinationGroups                 []DestinationGroup                `json:"destinationGroups"`
+	DestinationNamespace              string                            `json:"destinationNamespace"`
+	SyncPolicy                        *argov1alpha1.SyncPolicy          `json:"syncPolicy,omitempty,omitzero"`
+	ApplicationNameUniquenessStrategy ApplicationNameUniquenessStrategy `json:"applicationNameUniquenessStrategy,omitempty,omitzero"`
+}
+
+type ApplicationNameUniquenessStrategy struct {
+	IncludeDestinationNamespace bool `json:"usingManyNamespaces,omitempty,omitzero"`
+	IncludeGroup                bool `json:"includeGroup,omitempty,omitzero"`
 }
 
 func (s *Service) Validate() error {
@@ -96,12 +102,7 @@ func (dg *DestinationGroup) Validate() error {
 }
 
 type Destination struct {
-	FriendlyName string `json:"friendlyName"`
-	// ClusterURL specifies the URL of the target cluster's Kubernetes control plane API. This must be set if ClusterName is not set.
-	ClusterURL string `json:"clusterUrl,omitempty,omitzero"`
-	// ClusterName is an alternate way of specifying the target cluster by its symbolic name. This must be set if ClusterNameURL is not set.
-	ClusterName string      `json:"clusterName,omitempty,omitzero"`
-	Namespace   string      `json:"namespace,omitempty,omitzero"`
+	*argov1alpha1.ApplicationDestination
 	ArgoCDLogin ArgoCDLogin `json:"argocdLogin,omitempty,omitzero"`
 }
 
@@ -116,12 +117,16 @@ func (d *Destination) Validate() error {
 
 	var errs []error
 
-	if d.ClusterName == "" && d.ClusterURL == "" {
-		errs = append(errs, fmt.Errorf("one of clusterName or clusterUrl required"))
+	if d.Namespace == "" {
+		errs = append(errs, errors.New("destination namespace is required"))
 	}
 
-	if d.FriendlyName == "" && d.ClusterName == "" {
-		errs = append(errs, fmt.Errorf("one of friendlyName or clusterName required"))
+	if d.Name == "" && d.Server == "" {
+		errs = append(errs, errors.New("one of clusterName or clusterUrl required"))
+	}
+
+	if d.Name != "" && d.Server != "" {
+		errs = append(errs, errors.New("only one of clusterName or clusterUrl may be specified"))
 	}
 
 	return errors.Join(errs...)

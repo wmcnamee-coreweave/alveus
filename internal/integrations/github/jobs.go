@@ -3,9 +3,11 @@ package github
 import (
 	"fmt"
 
+	argov1alpha1 "github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
 	"github.com/cakehappens/gocto"
 
 	"github.com/ghostsquad/alveus/api/v1alpha1"
+	"github.com/ghostsquad/alveus/internal/integrations/argocd"
 	"github.com/ghostsquad/alveus/internal/util"
 )
 
@@ -21,10 +23,12 @@ func newDeployGroupJob(name string, wf gocto.Workflow) gocto.Job {
 }
 
 type newDeployJobInput struct {
-	name           string
-	destination    v1alpha1.Destination
-	checkoutBranch string
-	argoCDLoginURL string
+	name               string
+	destination        v1alpha1.Destination
+	checkoutBranch     string
+	argoCDLoginURL     string
+	argoCDApplication  argov1alpha1.Application
+	syncTimeoutSeconds int
 }
 
 func newDeployJob(input newDeployJobInput) gocto.Job {
@@ -33,10 +37,17 @@ func newDeployJob(input newDeployJobInput) gocto.Job {
 		EnvNameArgoCDApplicationFile = "ARGOCD_APPLICATION_FILE"
 		EnvNameGitCommitMessage      = "GIT_COMMIT_MESSAGE"
 		EnvNameNewTargetRevision     = "ARGOCD_APPLICATION_NEW_TARGET_REVISION"
+		EnvNameArgoCDAuthToken       = "ARGOCD_AUTH_TOKEN"
 	)
 
 	name := input.name
 	destination := input.destination
+
+	if input.syncTimeoutSeconds == 0 {
+		input.syncTimeoutSeconds = 300
+	}
+
+	destinationFriendlyName := argocd.CoalesceSanitizeDestination(*destination.ApplicationDestination)
 
 	job := gocto.Job{
 		Name:   name,
@@ -49,11 +60,9 @@ func newDeployJob(input newDeployJobInput) gocto.Job {
 		Env: map[string]string{
 			EnvNameArgoCDURL:             input.argoCDLoginURL,
 			EnvNameArgoCDApplicationFile: "fake-application-file.yaml",
-			EnvNameGitCommitMessage:      fmt.Sprintf("feat: 🚀 deploy to %s", destination.FriendlyName),
+			EnvNameGitCommitMessage:      fmt.Sprintf("feat: 🚀 deploy to %s", destinationFriendlyName),
 			EnvNameNewTargetRevision:     "123new",
-		},
-		Environment: gocto.Environment{
-			Name: destination.FriendlyName,
+			EnvNameArgoCDAuthToken:       "fake-auth-token",
 		},
 		Steps: []gocto.Step{
 			{
@@ -98,21 +107,23 @@ func newDeployJob(input newDeployJobInput) gocto.Job {
 				},
 			},
 			{
-				Name: "argocd-login",
-				Run: util.SprintfDedent(`
-					argocd login "${%s}" --grpc-web --skip-test-tls
-				`, EnvNameArgoCDURL),
-			},
-			{
 				Name: "argocd-upsert",
 				Run: util.SprintfDedent(`
-					argocd app create --upsert --file "${%s}" \
+					argocd app create \
 						--grpc-web \
-						--sync-retry-backoff-factor 2 \
-						--sync-retry-backoff-max-duration 3m0s \
-						--sync-retry-limit 2 \
+						--upsert \
+						--file "${%s}" \
 						;
 				`, EnvNameArgoCDApplicationFile),
+			},
+			{
+				Name: "argocd-sync",
+				Run: util.SprintfDedent(`
+					argocd app sync \
+						--grpc-web \
+						--timeout %d \
+						;
+				`, input.syncTimeoutSeconds),
 			},
 		},
 	}

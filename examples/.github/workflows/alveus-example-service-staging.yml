@@ -2,6 +2,6 @@ name: example-service-staging
 "on":
   workflow_dispatch: {}
 jobs:
-  cluster-1:
-    name: cluster-1
-    uses: .github/workflows/example-service-cluster-1.yml
+  kube-local:
+    name: kube-local
+    uses: .github/workflows/example-service-kube-local.yml

@@ -35,6 +35,16 @@ func RemoveDupOf(s string, target rune) string {
 	return buf.String()
 }
 
+func CoalesceStrings(vals ...string) string {
+	for _, val := range vals {
+		if val != "" {
+			return val
+		}
+	}
+
+	return ""
+}
+
 func SanitizeNameForKubernetes(name string) (string, error) {
 	newName := strings.Map(func(r rune) rune {
 		switch {

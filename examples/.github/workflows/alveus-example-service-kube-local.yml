@@ -1,23 +1,23 @@
-name: example-service-cluster-1
+name: example-service-kube-local
 "on":
+  workflow_call: {}
   workflow_dispatch: {}
 concurrency:
-  group: cluster-1
+  group: kube-local
 defaults:
   run:
     shell: bash
 jobs:
-  cluster-1:
-    name: cluster-1
+  kube-local:
+    name: kube-local
     runs-on:
     - ubuntu-latest
-    environment:
-      name: cluster-1
     env:
       ARGOCD_APPLICATION_FILE: fake-application-file.yaml
       ARGOCD_APPLICATION_NEW_TARGET_REVISION: 123new
+      ARGOCD_AUTH_TOKEN: fake-auth-token
       ARGOCD_URL: ""
-      GIT_COMMIT_MESSAGE: "feat: 🚀 deploy to cluster-1"
+      GIT_COMMIT_MESSAGE: "feat: 🚀 deploy to kube-local"
     defaults:
       run:
         shell: bash
@@ -44,13 +44,16 @@ jobs:
       with:
         branch: ""
         github_token: ${{ secrets.GITHUB_TOKEN }}
-    - name: argocd-login
-      run: argocd login "${ARGOCD_URL}" --grpc-web --skip-test-tls
     - name: argocd-upsert
       run: |-
-        argocd app create --upsert --file "${ARGOCD_APPLICATION_FILE}" \
+        argocd app create \
           --grpc-web \
-          --sync-retry-backoff-factor 2 \
-          --sync-retry-backoff-max-duration 3m0s \
-          --sync-retry-limit 2 \
+          --upsert \
+          --file "${ARGOCD_APPLICATION_FILE}" \
+          ;
+    - name: argocd-sync
+      run: |-
+        argocd app sync \
+          --grpc-web \
+          --timeout 300 \
           ;

@@ -10,6 +10,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/ghostsquad/alveus/api/v1alpha1"
+	"github.com/ghostsquad/alveus/internal/util"
 )
 
 type Options struct {
@@ -25,12 +26,10 @@ type Options struct {
 type Option func(*Options)
 
 type Input struct {
-	Name                   string
-	RepoURL                string
-	TargetRevision         string
-	DestinationNamespace   string
-	DestinationClusterName string
-	DestinationClusterURL  string
+	Name           string
+	RepoURL        string
+	TargetRevision string
+	Destination    argov1alpha1.ApplicationDestination
 }
 
 func (in *Input) Validate() error {
@@ -48,16 +47,16 @@ func (in *Input) Validate() error {
 		errs = append(errs, fmt.Errorf("targetRevision is required"))
 	}
 
-	if in.DestinationNamespace == "" {
+	if in.Destination.Namespace == "" {
 		errs = append(errs, fmt.Errorf("destinationNamespace is required"))
 	}
 
-	if in.DestinationClusterName == "" && in.DestinationClusterURL == "" {
-		errs = append(errs, fmt.Errorf("destinationClusterName or destinationClusterURL is required"))
+	if in.Destination.Name == "" && in.Destination.Server == "" {
+		errs = append(errs, fmt.Errorf("destination.Name or destination.Server is required"))
 	}
 
-	if in.DestinationClusterName != "" && in.DestinationClusterURL != "" {
-		errs = append(errs, fmt.Errorf("destinationClusterName and destinationClusterURL are mutually exclusive"))
+	if in.Destination.Name != "" && in.Destination.Server != "" {
+		errs = append(errs, fmt.Errorf("destination.Name and destination.Server are mutually exclusive"))
 	}
 
 	return errors.Join(errs...)
@@ -130,11 +129,7 @@ func NewApplication(input Input, options ...Option) (argov1alpha1.Application, e
 			Annotations: annotations,
 		},
 		Spec: argov1alpha1.ApplicationSpec{
-			Destination: argov1alpha1.ApplicationDestination{
-				Server:    input.DestinationClusterURL,
-				Namespace: input.DestinationNamespace,
-				Name:      input.DestinationClusterName,
-			},
+			Destination:       input.Destination,
 			Project:           opts.Project,
 			SyncPolicy:        opts.SyncPolicy,
 			IgnoreDifferences: opts.IgnoreDifferences,
@@ -146,5 +141,22 @@ func NewApplication(input Input, options ...Option) (argov1alpha1.Application, e
 }
 
 func FilenameFor(application argov1alpha1.Application) string {
-	return strings.ToLower(fmt.Sprintf("%s-%s.yaml", application.Namespace, application.Name))
+	return strings.ToLower(
+		util.Join("-",
+			application.Name,
+		),
+	) + ".yaml"
+}
+
+func CoalesceSanitizeDestination(destination argov1alpha1.ApplicationDestination) string {
+	if destination.Name != "" {
+		return strings.ToLower(destination.Name)
+	}
+
+	name := strings.ToLower(destination.Server)
+	name = strings.TrimPrefix(name, "https://")
+	name = strings.TrimPrefix(name, "http://")
+	name = strings.ReplaceAll(name, ".", "-")
+
+	return name
 }
