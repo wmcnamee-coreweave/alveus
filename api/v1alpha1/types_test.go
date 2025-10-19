@@ -288,5 +288,71 @@ var _ = Describe("Destinations.Validate()", func() {
 		It("should not return an error", func() {
 			Expect(actualErr).NotTo(HaveOccurred())
 		})
+
+		When("server provided, name empty", func() {
+			BeforeEach(func() {
+				for i := range destinations {
+					destinations[i].Server = "server-hostname"
+					destinations[i].Name = ""
+				}
+			})
+
+			It("should not return an error", func() {
+				Expect(actualErr).NotTo(HaveOccurred())
+			})
+		})
+
+		When("server empty, name provided", func() {
+			BeforeEach(func() {
+				for i := range destinations {
+					destinations[i].Server = ""
+					destinations[i].Name = "server-name"
+				}
+			})
+
+			It("should not return an error", func() {
+				Expect(actualErr).NotTo(HaveOccurred())
+			})
+		})
+
+		Context("except", func() {
+			When("argocdLogin.hostname is empty", func() {
+				BeforeEach(func() {
+					for i := range destinations {
+						destinations[i].ArgoCDLogin.Hostname = ""
+					}
+				})
+
+				It("should return an error", func() {
+					Expect(actualErr).To(MatchError("validating destination: argocdLogin.hostname is required"))
+				})
+			})
+
+			When("server & name are both provided", func() {
+				BeforeEach(func() {
+					for i := range destinations {
+						destinations[i].Server = "server-hostname"
+						destinations[i].Name = "server-name"
+					}
+				})
+
+				It("should return an error", func() {
+					Expect(actualErr).To(MatchError("validating destination: only one of clusterName or clusterUrl may be specified"))
+				})
+			})
+
+			When("neither server or name are provided", func() {
+				BeforeEach(func() {
+					for i := range destinations {
+						destinations[i].Server = ""
+						destinations[i].Name = ""
+					}
+				})
+
+				It("should return an error", func() {
+					Expect(actualErr).To(MatchError("validating destination: one of clusterName or clusterUrl required"))
+				})
+			})
+		})
 	})
 })
