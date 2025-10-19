@@ -7,7 +7,6 @@ import (
 	"github.com/cakehappens/gocto"
 
 	"github.com/ghostsquad/alveus/api/v1alpha1"
-	"github.com/ghostsquad/alveus/internal/integrations/argocd"
 	"github.com/ghostsquad/alveus/internal/util"
 )
 
@@ -47,7 +46,7 @@ func newDeployJob(input newDeployJobInput) gocto.Job {
 		input.syncTimeoutSeconds = 300
 	}
 
-	destinationFriendlyName := argocd.CoalesceSanitizeDestination(*destination.ApplicationDestination)
+	destinationFriendlyName := v1alpha1.CoalesceSanitizeDestination(*destination.ApplicationDestination)
 
 	job := gocto.Job{
 		Name:   name,

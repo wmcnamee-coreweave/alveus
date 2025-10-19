@@ -3,6 +3,7 @@ package v1alpha1
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	argov1alpha1 "github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
 	rolloutsv1alpha1 "github.com/argoproj/argo-rollouts/pkg/apis/rollouts/v1alpha1"
@@ -14,10 +15,13 @@ type Service struct {
 	IgnoreDifferences                 argov1alpha1.IgnoreDifferences    `json:"ignoreDifferences,omitempty,omitzero"`
 	PrePromotionAnalysis              *rolloutsv1alpha1.RolloutAnalysis `json:"prePromotionAnalysis,omitempty,omitzero"`
 	PostPromotionAnalysis             *rolloutsv1alpha1.RolloutAnalysis `json:"postPromotionAnalysis,omitempty,omitzero"`
-	DestinationGroups                 []DestinationGroup                `json:"destinationGroups"`
+	DestinationGroups                 DestinationGroups                 `json:"destinationGroups"`
 	DestinationNamespace              string                            `json:"destinationNamespace"`
 	SyncPolicy                        *argov1alpha1.SyncPolicy          `json:"syncPolicy,omitempty,omitzero"`
 	ApplicationNameUniquenessStrategy ApplicationNameUniquenessStrategy `json:"applicationNameUniquenessStrategy,omitempty,omitzero"`
+
+	sourceValidatorFunc            func(source Source) error
+	destinationGroupsValidatorFunc func(groups DestinationGroups) error
 }
 
 type ApplicationNameUniquenessStrategy struct {
@@ -36,20 +40,56 @@ func (s *Service) Validate() error {
 		errs = append(errs, errors.New("service name is required"))
 	}
 
-	err := s.Source.Validate()
+	if s.sourceValidatorFunc == nil {
+		s.sourceValidatorFunc = func(source Source) error {
+			return source.Validate()
+		}
+	}
+
+	err := s.sourceValidatorFunc(s.Source)
 	if err != nil {
 		errs = append(errs, fmt.Errorf("validating source: %w", err))
 	}
 
-	if len(s.DestinationGroups) == 0 {
+	if s.destinationGroupsValidatorFunc == nil {
+		s.destinationGroupsValidatorFunc = func(groups DestinationGroups) error {
+			return groups.Validate()
+		}
+	}
+
+	errs = append(errs, s.destinationGroupsValidatorFunc(s.DestinationGroups))
+
+	return errors.Join(errs...)
+}
+
+type DestinationGroups []DestinationGroup
+
+func (dg DestinationGroups) Validate() error {
+	var errs []error
+
+	if len(dg) == 0 {
 		errs = append(errs, errors.New("at least 1 destination group is required"))
 	}
 
-	for _, destinationGroup := range s.DestinationGroups {
+	groupsFound := make(map[string]struct{})
+
+	for _, destinationGroup := range dg {
 		err := destinationGroup.Validate()
-		if err != nil {
-			errs = append(errs, fmt.Errorf("validating destination group: %w", err))
+		groupName := destinationGroup.Name
+		if groupName == "" {
+			groupName = "<empty>"
 		}
+		if err != nil {
+			errs = append(errs, fmt.Errorf("validating destination group: %s: %w", groupName, err))
+			continue
+		}
+
+		if _, ok := groupsFound[destinationGroup.Name]; ok {
+			errs = append(errs, fmt.Errorf("duplicate destination group name: %s", destinationGroup.Name))
+		} else {
+			groupsFound[destinationGroup.Name] = struct{}{}
+		}
+
 	}
 
 	return errors.Join(errs...)
@@ -74,6 +114,8 @@ type DestinationGroup struct {
 	Name                 string        `json:"name"`
 	Destinations         []Destination `json:"destinations"`
 	DestinationNamespace string        `json:"destinationNamespace,omitempty,omitzero"`
+
+	destinationsValidatorFunc func(destinations Destinations) error
 }
 
 func (dg *DestinationGroup) Validate() error {
@@ -87,14 +129,48 @@ func (dg *DestinationGroup) Validate() error {
 		errs = append(errs, errors.New("name is required"))
 	}
 
-	if len(dg.Destinations) == 0 {
+	if dg.destinationsValidatorFunc == nil {
+		dg.destinationsValidatorFunc = func(ds Destinations) error {
+			return ds.Validate()
+		}
+	}
+
+	dsValidationErr := dg.destinationsValidatorFunc(dg.Destinations)
+	if dsValidationErr != nil {
+
+		errs = append(errs, fmt.Errorf("validating destinations: %w", dsValidationErr))
+	}
+
+	return errors.Join(errs...)
+}
+
+type Destinations []Destination
+
+func (ds Destinations) Validate() error {
+	var errs []error
+
+	if len(ds) == 0 {
 		errs = append(errs, errors.New("destinations is empty"))
 	}
 
-	for _, d := range dg.Destinations {
+	destinationsFound := make(map[string]struct{})
+
+	for _, d := range ds {
+		if d.ApplicationDestination == nil {
+			errs = append(errs, errors.New("destination is nil"))
+			continue
+		}
+
 		err := d.Validate()
 		if err != nil {
 			errs = append(errs, fmt.Errorf("validating destination: %w", err))
+		}
+
+		destFinalName := CoalesceSanitizeDestination(*d.ApplicationDestination) + "/namespace/" + d.Namespace
+		if _, ok := destinationsFound[destFinalName]; ok {
+			errs = append(errs, fmt.Errorf("duplicate destination name: %s", destFinalName))
+		} else {
+			destinationsFound[destFinalName] = struct{}{}
 		}
 	}
 
@@ -130,4 +206,17 @@ func (d *Destination) Validate() error {
 	}
 
 	return errors.Join(errs...)
+}
+
+func CoalesceSanitizeDestination(destination argov1alpha1.ApplicationDestination) string {
+	if destination.Name != "" {
+		return strings.ToLower(destination.Name)
+	}
+
+	name := strings.ToLower(destination.Server)
+	name = strings.TrimPrefix(name, "https://")
+	name = strings.TrimPrefix(name, "http://")
+	name = strings.ReplaceAll(name, ".", "-")
+
+	return name
 }

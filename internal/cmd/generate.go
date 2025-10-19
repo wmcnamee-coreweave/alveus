@@ -113,7 +113,7 @@ func generateNameByStrategy(input generateNameInput) string {
 		components = append(components, input.groupName)
 	}
 
-	components = append(components, argocd.CoalesceSanitizeDestination(input.destination))
+	components = append(components, v1alpha1.CoalesceSanitizeDestination(input.destination))
 
 	if input.strategy.IncludeDestinationNamespace {
 		components = append(components, input.destination.Namespace)

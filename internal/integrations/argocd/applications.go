@@ -147,16 +147,3 @@ func FilenameFor(application argov1alpha1.Application) string {
 		),
 	) + ".yaml"
 }
-
-func CoalesceSanitizeDestination(destination argov1alpha1.ApplicationDestination) string {
-	if destination.Name != "" {
-		return strings.ToLower(destination.Name)
-	}
-
-	name := strings.ToLower(destination.Server)
-	name = strings.TrimPrefix(name, "https://")
-	name = strings.TrimPrefix(name, "http://")
-	name = strings.ReplaceAll(name, ".", "-")
-
-	return name
-}

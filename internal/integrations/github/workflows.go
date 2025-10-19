@@ -4,7 +4,6 @@ import (
 	"github.com/cakehappens/gocto"
 
 	"github.com/ghostsquad/alveus/api/v1alpha1"
-	"github.com/ghostsquad/alveus/internal/integrations/argocd"
 )
 
 func NewWorkflows(service v1alpha1.Service) []gocto.Workflow {
@@ -51,7 +50,7 @@ func newDeploymentGroupWorkflows(namePrefix string, group v1alpha1.DestinationGr
 
 	for _, dest := range group.Destinations {
 		wf := newDeploymentWorkflow(namePrefix, dest)
-		destinationFriendlyName := argocd.CoalesceSanitizeDestination(*dest.ApplicationDestination)
+		destinationFriendlyName := v1alpha1.CoalesceSanitizeDestination(*dest.ApplicationDestination)
 		groupWf.Jobs[destinationFriendlyName] = newDeployGroupJob(destinationFriendlyName, wf)
 		subWorkflows = append(subWorkflows, wf)
 	}
@@ -60,7 +59,7 @@ func newDeploymentGroupWorkflows(namePrefix string, group v1alpha1.DestinationGr
 }
 
 func newDeploymentWorkflow(namePrefix string, destination v1alpha1.Destination) gocto.Workflow {
-	destinationFriendlyName := argocd.CoalesceSanitizeDestination(*destination.ApplicationDestination)
+	destinationFriendlyName := v1alpha1.CoalesceSanitizeDestination(*destination.ApplicationDestination)
 
 	jobName := destinationFriendlyName
 	job := newDeployJob(newDeployJobInput{
