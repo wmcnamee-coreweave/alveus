@@ -52,7 +52,9 @@ func createServiceFile() error {
 						ApplicationDestination: &argov1alpha1.ApplicationDestination{
 							Server: "http://kube.local",
 						},
-						ArgoCDLogin: v1alpha1.ArgoCDLogin{},
+						ArgoCDLogin: v1alpha1.ArgoCDLogin{
+							Hostname: "argocd.local",
+						},
 					},
 				},
 			},

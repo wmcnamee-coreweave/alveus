@@ -16,7 +16,7 @@ jobs:
       ARGOCD_APPLICATION_FILE: fake-application-file.yaml
       ARGOCD_APPLICATION_NEW_TARGET_REVISION: 123new
       ARGOCD_AUTH_TOKEN: fake-auth-token
-      ARGOCD_URL: ""
+      ARGOCD_HOSTNAME: argocd.local
       GIT_COMMIT_MESSAGE: "feat: 🚀 deploy to kube-local"
     defaults:
       run:

@@ -5,7 +5,7 @@ setup:
 	mise install
 
 .PHONY: test
-test: build
+test: build example
 	go run github.com/onsi/ginkgo/v2/ginkgo run ./...
 
 .PHONY: build

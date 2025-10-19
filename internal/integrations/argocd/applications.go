@@ -117,13 +117,18 @@ func NewApplication(input Input, options ...Option) (argov1alpha1.Application, e
 		source.Directory.Include = "{*.yml,*.yaml}"
 	}
 
+	finalizedName, err := util.SanitizeNameForKubernetes(input.Name)
+	if err != nil {
+		return argov1alpha1.Application{}, fmt.Errorf("sanitized application name is still problematic: %w", err)
+	}
+
 	app := argov1alpha1.Application{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       argoapisapplication.ApplicationKind,
 			APIVersion: argov1alpha1.SchemeGroupVersion.String(),
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:        input.Name,
+			Name:        finalizedName,
 			Namespace:   opts.ApplicationNamespace,
 			Labels:      labels,
 			Annotations: annotations,

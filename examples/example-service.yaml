@@ -6,4 +6,6 @@ destinationGroups:
   destinations:
   - applicationdestination:
       server: http://kube.local
+    argocdLogin:
+      hostname: argocd.local
 destinationNamespace: my-namespace
