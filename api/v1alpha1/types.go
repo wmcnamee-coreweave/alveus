@@ -12,6 +12,7 @@ import (
 type Service struct {
 	Name                              string                            `json:"name"`
 	Source                            Source                            `json:"source"`
+	ArgoCDLogin                       ArgoCDLogin                       `json:"argocdLogin,omitempty,omitzero"`
 	IgnoreDifferences                 argov1alpha1.IgnoreDifferences    `json:"ignoreDifferences,omitempty,omitzero"`
 	PrePromotionAnalysis              *rolloutsv1alpha1.RolloutAnalysis `json:"prePromotionAnalysis,omitempty,omitzero"`
 	PostPromotionAnalysis             *rolloutsv1alpha1.RolloutAnalysis `json:"postPromotionAnalysis,omitempty,omitzero"`
@@ -96,10 +97,11 @@ func (dg DestinationGroups) Validate() error {
 }
 
 type Source struct {
-	Path    string                                `json:"path"`
-	Include string                                `json:"include,omitempty,omitzero"`
-	Exclude string                                `json:"exclude,omitempty,omitzero"`
-	Jsonnet argov1alpha1.ApplicationSourceJsonnet `json:"jsonnet,omitempty,omitzero"`
+	Path         string                                `json:"path,omitempty,omitzero"`
+	CommitBranch string                                `json:"commitBranch,omitempty,omitzero"`
+	Include      string                                `json:"include,omitempty,omitzero"`
+	Exclude      string                                `json:"exclude,omitempty,omitzero"`
+	Jsonnet      argov1alpha1.ApplicationSourceJsonnet `json:"jsonnet,omitempty,omitzero"`
 }
 
 func (s *Source) Validate() error {
@@ -114,6 +116,7 @@ type DestinationGroup struct {
 	Name                 string        `json:"name"`
 	Destinations         []Destination `json:"destinations"`
 	DestinationNamespace string        `json:"destinationNamespace,omitempty,omitzero"`
+	ArgoCDLogin          ArgoCDLogin   `json:"argocdLogin,omitempty,omitzero"`
 
 	destinationsValidatorFunc func(destinations Destinations) error
 }
@@ -183,7 +186,7 @@ type Destination struct {
 }
 
 type ArgoCDLogin struct {
-	URL string `json:"url,omitempty,omitzero"`
+	Hostname string `json:"hostname,omitempty,omitzero"`
 }
 
 func (d *Destination) Validate() error {
@@ -203,6 +206,10 @@ func (d *Destination) Validate() error {
 
 	if d.Name != "" && d.Server != "" {
 		errs = append(errs, errors.New("only one of clusterName or clusterUrl may be specified"))
+	}
+
+	if d.ArgoCDLogin.Hostname == "" {
+		errs = append(errs, errors.New("argocdLogin.hostname is required"))
 	}
 
 	return errors.Join(errs...)

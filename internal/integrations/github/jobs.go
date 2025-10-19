@@ -22,17 +22,17 @@ func newDeployGroupJob(name string, wf gocto.Workflow) gocto.Job {
 }
 
 type newDeployJobInput struct {
-	name               string
-	destination        v1alpha1.Destination
-	checkoutBranch     string
-	argoCDLoginURL     string
-	argoCDApplication  argov1alpha1.Application
-	syncTimeoutSeconds int
+	name                 string
+	destination          v1alpha1.Destination
+	checkoutCommitBranch string
+	argocdHostname       string
+	argoCDApplication    argov1alpha1.Application
+	syncTimeoutSeconds   int
 }
 
 func newDeployJob(input newDeployJobInput) gocto.Job {
 	const (
-		EnvNameArgoCDURL             = "ARGOCD_URL"
+		EnvNameArgoCDHostname        = "ARGOCD_HOSTNAME"
 		EnvNameArgoCDApplicationFile = "ARGOCD_APPLICATION_FILE"
 		EnvNameGitCommitMessage      = "GIT_COMMIT_MESSAGE"
 		EnvNameNewTargetRevision     = "ARGOCD_APPLICATION_NEW_TARGET_REVISION"
@@ -57,7 +57,7 @@ func newDeployJob(input newDeployJobInput) gocto.Job {
 			},
 		},
 		Env: map[string]string{
-			EnvNameArgoCDURL:             input.argoCDLoginURL,
+			EnvNameArgoCDHostname:        input.argocdHostname,
 			EnvNameArgoCDApplicationFile: "fake-application-file.yaml",
 			EnvNameGitCommitMessage:      fmt.Sprintf("feat: 🚀 deploy to %s", destinationFriendlyName),
 			EnvNameNewTargetRevision:     "123new",
@@ -67,7 +67,7 @@ func newDeployJob(input newDeployJobInput) gocto.Job {
 			{
 				Uses: "checkout@v4",
 				With: map[string]any{
-					"ref": input.checkoutBranch,
+					"ref": input.checkoutCommitBranch,
 					// otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
 					"persist-credentials": false,
 					// otherwise, you will fail to push refs to dest repo
@@ -102,7 +102,7 @@ func newDeployJob(input newDeployJobInput) gocto.Job {
 				Uses: "actions-js/push@v1.5",
 				With: map[string]any{
 					"github_token": "${{ secrets.GITHUB_TOKEN }}",
-					"branch":       input.checkoutBranch,
+					"branch":       input.checkoutCommitBranch,
 				},
 			},
 			{

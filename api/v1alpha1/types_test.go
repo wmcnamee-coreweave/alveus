@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	argov1alpha1 "github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -249,6 +250,43 @@ var _ = Describe("DestinationGroups.Validate()", func() {
 			It("should return an error", func() {
 				Expect(actualErr).To(MatchError("duplicate destination group name: foo"))
 			})
+		})
+	})
+})
+
+var _ = Describe("Destinations.Validate()", func() {
+	var (
+		destinations Destinations
+		actualErr    error
+	)
+
+	BeforeEach(func() {
+		destinations = nil
+		actualErr = nil
+	})
+
+	JustBeforeEach(func() {
+		actualErr = destinations.Validate()
+	})
+
+	Context("a validate destinations set", func() {
+		BeforeEach(func() {
+			destinations = Destinations{
+				{
+					ApplicationDestination: &argov1alpha1.ApplicationDestination{
+						Server:    "",
+						Namespace: "my-namespace",
+						Name:      "http://kube.local",
+					},
+					ArgoCDLogin: ArgoCDLogin{
+						Hostname: "foo",
+					},
+				},
+			}
+		})
+
+		It("should not return an error", func() {
+			Expect(actualErr).NotTo(HaveOccurred())
 		})
 	})
 })

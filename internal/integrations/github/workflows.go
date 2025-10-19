@@ -20,7 +20,11 @@ func NewWorkflows(service v1alpha1.Service) []gocto.Workflow {
 
 	var prevGroupJob *gocto.Job
 	for _, dg := range service.DestinationGroups {
-		dgWf, subWfs := newDeploymentGroupWorkflows(service.Name, dg)
+		dgWf, subWfs := newDeploymentGroupWorkflows(newDeploymentGroupWorkflowInput{
+			namePrefix:           service.Name,
+			group:                dg,
+			checkoutCommitBranch: service.Source.CommitBranch,
+		})
 		workflows = append(workflows, dgWf)
 		workflows = append(workflows, subWfs...)
 
@@ -37,19 +41,29 @@ func NewWorkflows(service v1alpha1.Service) []gocto.Workflow {
 	return workflows
 }
 
-func newDeploymentGroupWorkflows(namePrefix string, group v1alpha1.DestinationGroup) (gocto.Workflow, []gocto.Workflow) {
+type newDeploymentGroupWorkflowInput struct {
+	namePrefix           string
+	group                v1alpha1.DestinationGroup
+	checkoutCommitBranch string
+}
+
+func newDeploymentGroupWorkflows(input newDeploymentGroupWorkflowInput) (gocto.Workflow, []gocto.Workflow) {
 	var subWorkflows []gocto.Workflow
 
 	groupWf := gocto.Workflow{
-		Name: namePrefix + "-" + group.Name,
+		Name: input.namePrefix + "-" + input.group.Name,
 		On: gocto.WorkflowOn{
 			Dispatch: &gocto.OnDispatch{},
 		},
 		Jobs: make(map[string]gocto.Job),
 	}
 
-	for _, dest := range group.Destinations {
-		wf := newDeploymentWorkflow(namePrefix, dest)
+	for _, dest := range input.group.Destinations {
+		wf := newDeploymentWorkflow(newDeploymentWorkflowInput{
+			namePrefix:           input.namePrefix,
+			checkoutCommitBranch: input.checkoutCommitBranch,
+			destination:          dest,
+		})
 		destinationFriendlyName := v1alpha1.CoalesceSanitizeDestination(*dest.ApplicationDestination)
 		groupWf.Jobs[destinationFriendlyName] = newDeployGroupJob(destinationFriendlyName, wf)
 		subWorkflows = append(subWorkflows, wf)
@@ -58,19 +72,25 @@ func newDeploymentGroupWorkflows(namePrefix string, group v1alpha1.DestinationGr
 	return groupWf, subWorkflows
 }
 
-func newDeploymentWorkflow(namePrefix string, destination v1alpha1.Destination) gocto.Workflow {
-	destinationFriendlyName := v1alpha1.CoalesceSanitizeDestination(*destination.ApplicationDestination)
+type newDeploymentWorkflowInput struct {
+	namePrefix           string
+	checkoutCommitBranch string
+	destination          v1alpha1.Destination
+}
+
+func newDeploymentWorkflow(input newDeploymentWorkflowInput) gocto.Workflow {
+	destinationFriendlyName := v1alpha1.CoalesceSanitizeDestination(*input.destination.ApplicationDestination)
 
 	jobName := destinationFriendlyName
 	job := newDeployJob(newDeployJobInput{
-		name:           jobName,
-		destination:    destination,
-		checkoutBranch: "",
-		argoCDLoginURL: "",
+		name:                 jobName,
+		destination:          input.destination,
+		checkoutCommitBranch: input.checkoutCommitBranch,
+		argocdHostname:       input.destination.ArgoCDLogin.Hostname,
 	})
 
 	wf := gocto.Workflow{
-		Name: namePrefix + "-" + destinationFriendlyName,
+		Name: input.namePrefix + "-" + destinationFriendlyName,
 		On: gocto.WorkflowOn{
 			Dispatch: &gocto.OnDispatch{},
 			Call:     &gocto.OnCall{},
