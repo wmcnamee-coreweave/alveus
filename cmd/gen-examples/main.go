@@ -67,9 +67,7 @@ func createServiceFile() error {
 				Name: "staging",
 				Destinations: []v1alpha1.Destination{
 					{
-						ApplicationDestination: &argov1alpha1.ApplicationDestination{
-							Server: "http://kube.local",
-						},
+						Server: "http://kube.local",
 						ArgoCD: v1alpha1.ArgoCD{
 							Hostname: "argocd.local",
 						},

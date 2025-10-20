@@ -29,7 +29,7 @@ type Input struct {
 	Name           string
 	RepoURL        string
 	TargetRevision string
-	Destination    argov1alpha1.ApplicationDestination
+	Destination    v1alpha1.Destination
 }
 
 func (in *Input) Validate() error {
@@ -133,7 +133,11 @@ func NewApplication(input Input, options ...Option) (argov1alpha1.Application, e
 			Annotations: annotations,
 		},
 		Spec: argov1alpha1.ApplicationSpec{
-			Destination:       input.Destination,
+			Destination: argov1alpha1.ApplicationDestination{
+				Server:    input.Destination.Server,
+				Namespace: input.Destination.Namespace,
+				Name:      input.Destination.Name,
+			},
 			Project:           opts.Project,
 			SyncPolicy:        opts.SyncPolicy,
 			IgnoreDifferences: opts.IgnoreDifferences,

@@ -61,7 +61,7 @@ func newDeploymentGroupWorkflows(input newDeploymentGroupWorkflowInput) (gocto.W
 			checkoutCommitBranch: input.checkoutCommitBranch,
 			destination:          dest,
 		})
-		destinationFriendlyName := v1alpha1.CoalesceSanitizeDestination(*dest.ApplicationDestination)
+		destinationFriendlyName := v1alpha1.CoalesceSanitizeDestination(dest)
 		groupWf.Jobs[destinationFriendlyName] = newDeployGroupJob(destinationFriendlyName, wf)
 		subWorkflows = append(subWorkflows, wf)
 	}
@@ -76,7 +76,7 @@ type newDeploymentWorkflowInput struct {
 }
 
 func newDeploymentWorkflow(input newDeploymentWorkflowInput) gocto.Workflow {
-	destinationFriendlyName := v1alpha1.CoalesceSanitizeDestination(*input.destination.ApplicationDestination)
+	destinationFriendlyName := v1alpha1.CoalesceSanitizeDestination(input.destination)
 
 	jobName := destinationFriendlyName
 	job := newDeployJob(newDeployJobInput{

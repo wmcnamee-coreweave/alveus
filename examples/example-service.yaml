@@ -2,8 +2,7 @@ name: example-service
 destinationGroups:
 - name: staging
   destinations:
-  - applicationdestination:
-      server: http://kube.local
+  - server: http://kube.local
     argocd:
       hostname: argocd.local
 destinationNamespace: my-namespace

@@ -100,7 +100,7 @@ func NewGenerateCommand() *cobra.Command {
 type generateNameInput struct {
 	serviceName string
 	groupName   string
-	destination argov1alpha1.ApplicationDestination
+	destination v1alpha1.Destination
 	strategy    v1alpha1.ApplicationNameUniquenessStrategy
 }
 
@@ -131,7 +131,7 @@ func generateApps(repoURL, targetRevision string, service v1alpha1.Service) ([]a
 				generateNameInput{
 					serviceName: service.Name,
 					groupName:   group.Name,
-					destination: *dest.ApplicationDestination,
+					destination: dest,
 					strategy:    v1alpha1.ApplicationNameUniquenessStrategy{},
 				},
 			)
@@ -140,7 +140,7 @@ func generateApps(repoURL, targetRevision string, service v1alpha1.Service) ([]a
 				Name:           name,
 				RepoURL:        repoURL,
 				TargetRevision: targetRevision,
-				Destination:    *dest.ApplicationDestination,
+				Destination:    dest,
 			}, argocd.FromServiceAPI(service))
 
 			if err != nil {

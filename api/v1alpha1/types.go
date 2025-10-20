@@ -173,17 +173,12 @@ func (ds Destinations) Validate() error {
 	destinationsFound := make(map[string]struct{})
 
 	for _, d := range ds {
-		if d.ApplicationDestination == nil {
-			errs = append(errs, errors.New("destination is nil"))
-			continue
-		}
-
 		err := d.Validate()
 		if err != nil {
 			errs = append(errs, fmt.Errorf("validating destination: %w", err))
 		}
 
-		destFinalName := CoalesceSanitizeDestination(*d.ApplicationDestination) + "/namespace/" + d.Namespace
+		destFinalName := CoalesceSanitizeDestination(d) + "/namespace/" + d.Namespace
 		if _, ok := destinationsFound[destFinalName]; ok {
 			errs = append(errs, fmt.Errorf("duplicate destination name: %s", destFinalName))
 		} else {
@@ -195,7 +190,13 @@ func (ds Destinations) Validate() error {
 }
 
 type Destination struct {
-	*argov1alpha1.ApplicationDestination
+	// Server specifies the URL of the target cluster's Kubernetes control plane API. This must be set if Name is not set.
+	Server string `json:"server,omitempty" protobuf:"bytes,1,opt,name=server"`
+	// Namespace specifies the target namespace for the application's resources.
+	// The namespace will only be set for namespace-scoped resources that have not set a value for .metadata.namespace
+	Namespace string `json:"namespace,omitempty" protobuf:"bytes,2,opt,name=namespace"`
+	// Name is an alternate way of specifying the target cluster by its symbolic name. This must be set if Server is not set.
+	Name                  string                            `json:"name,omitempty" protobuf:"bytes,3,opt,name=name"`
 	ArgoCD                ArgoCD                            `json:"argocd,omitempty,omitzero"`
 	Github                Github                            `json:"github,omitempty,omitzero"`
 	PrePromotionAnalysis  *rolloutsv1alpha1.RolloutAnalysis `json:"prePromotionAnalysis,omitempty,omitzero"`
@@ -228,7 +229,7 @@ func (d *Destination) Validate() error {
 	return errors.Join(errs...)
 }
 
-func CoalesceSanitizeDestination(destination argov1alpha1.ApplicationDestination) string {
+func CoalesceSanitizeDestination(destination Destination) string {
 	if destination.Name != "" {
 		return strings.ToLower(destination.Name)
 	}

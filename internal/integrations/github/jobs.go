@@ -46,7 +46,7 @@ func newDeployJob(input newDeployJobInput) gocto.Job {
 		input.syncTimeoutSeconds = 300
 	}
 
-	destinationFriendlyName := v1alpha1.CoalesceSanitizeDestination(*destination.ApplicationDestination)
+	destinationFriendlyName := v1alpha1.CoalesceSanitizeDestination(destination)
 
 	job := gocto.Job{
 		Name:   name,

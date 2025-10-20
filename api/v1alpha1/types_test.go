@@ -4,8 +4,7 @@ import (
 	"errors"
 	"strconv"
 	"strings"
-
-	argov1alpha1 "github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
+	
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -273,11 +272,9 @@ var _ = Describe("Destinations.Validate()", func() {
 		BeforeEach(func() {
 			destinations = Destinations{
 				{
-					ApplicationDestination: &argov1alpha1.ApplicationDestination{
-						Server:    "",
-						Namespace: "my-namespace",
-						Name:      "http://kube.local",
-					},
+					Server:    "",
+					Namespace: "my-namespace",
+					Name:      "http://kube.local",
 					ArgoCD: ArgoCD{
 						Hostname: "foo",
 					},
