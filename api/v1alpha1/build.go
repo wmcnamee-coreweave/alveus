@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
+	"github.com/cakehappens/gocto"
 	"github.com/ghostsquad/alveus/internal/util"
 	"github.com/goccy/go-yaml"
 )
@@ -21,6 +22,10 @@ func NewFromYaml(contents []byte) (Service, error) {
 }
 
 func (s *Service) Inflate() {
+	if s.Github.On.Dispatch == nil {
+		s.Github.On.Dispatch = &gocto.OnDispatch{}
+	}
+
 	for gIdx, group := range s.DestinationGroups {
 		for dIdx, dest := range group.Destinations {
 			if dest.ApplicationDestination == nil {

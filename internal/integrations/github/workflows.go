@@ -15,10 +15,6 @@ func NewWorkflows(service v1alpha1.Service) []gocto.Workflow {
 		Jobs: make(map[string]gocto.Job),
 	}
 
-	if top.On.Dispatch == nil {
-		top.On.Dispatch = &gocto.OnDispatch{}
-	}
-
 	var prevGroupJob *gocto.Job
 	for _, dg := range service.DestinationGroups {
 		dgWf, subWfs := newDeploymentGroupWorkflows(newDeploymentGroupWorkflowInput{
