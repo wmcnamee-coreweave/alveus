@@ -7,17 +7,20 @@ import (
 
 	argov1alpha1 "github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
 	rolloutsv1alpha1 "github.com/argoproj/argo-rollouts/pkg/apis/rollouts/v1alpha1"
+	"github.com/cakehappens/gocto"
 )
 
 type Service struct {
 	Name                              string                            `json:"name"`
-	PrePromotionAnalysis              *rolloutsv1alpha1.RolloutAnalysis `json:"prePromotionAnalysis,omitempty,omitzero"`
-	PostPromotionAnalysis             *rolloutsv1alpha1.RolloutAnalysis `json:"postPromotionAnalysis,omitempty,omitzero"`
 	DestinationGroups                 DestinationGroups                 `json:"destinationGroups"`
 	DestinationNamespace              string                            `json:"destinationNamespace"`
 	ApplicationNameUniquenessStrategy ApplicationNameUniquenessStrategy `json:"applicationNameUniquenessStrategy,omitempty,omitzero"`
 	ArgoCD                            ArgoCD                            `json:"argocd,omitempty,omitzero"`
+	Github                            Github                            `json:"github,omitempty,omitzero"`
+	PrePromotionAnalysis              *rolloutsv1alpha1.RolloutAnalysis `json:"prePromotionAnalysis,omitempty,omitzero"`
+	PostPromotionAnalysis             *rolloutsv1alpha1.RolloutAnalysis `json:"postPromotionAnalysis,omitempty,omitzero"`
 
+	// For Testing
 	sourceValidatorFunc            func(source Source) error
 	destinationGroupsValidatorFunc func(groups DestinationGroups) error
 }
@@ -26,6 +29,10 @@ type ArgoCD struct {
 	Hostname   string                  `json:"hostname,omitempty,omitzero"`
 	Source     Source                  `json:"source,omitempty,omitzero"`
 	SyncPolicy argov1alpha1.SyncPolicy `json:"syncPolicy,omitempty,omitzero"`
+}
+
+type Github struct {
+	On gocto.WorkflowOn `json:"on,omitempty,omitzero"`
 }
 
 type ApplicationNameUniquenessStrategy struct {
@@ -120,9 +127,11 @@ type DestinationGroup struct {
 	Destinations          []Destination                     `json:"destinations"`
 	DestinationNamespace  string                            `json:"destinationNamespace,omitempty,omitzero"`
 	ArgoCD                ArgoCD                            `json:"argocd,omitempty,omitzero"`
+	Github                Github                            `json:"github,omitempty,omitzero"`
 	PrePromotionAnalysis  *rolloutsv1alpha1.RolloutAnalysis `json:"prePromotionAnalysis,omitempty,omitzero"`
 	PostPromotionAnalysis *rolloutsv1alpha1.RolloutAnalysis `json:"postPromotionAnalysis,omitempty,omitzero"`
 
+	// For Testing
 	destinationsValidatorFunc func(destinations Destinations) error
 }
 
@@ -188,6 +197,7 @@ func (ds Destinations) Validate() error {
 type Destination struct {
 	*argov1alpha1.ApplicationDestination
 	ArgoCD                ArgoCD                            `json:"argocd,omitempty,omitzero"`
+	Github                Github                            `json:"github,omitempty,omitzero"`
 	PrePromotionAnalysis  *rolloutsv1alpha1.RolloutAnalysis `json:"prePromotionAnalysis,omitempty,omitzero"`
 	PostPromotionAnalysis *rolloutsv1alpha1.RolloutAnalysis `json:"postPromotionAnalysis,omitempty,omitzero"`
 }

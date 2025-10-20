@@ -11,11 +11,12 @@ func NewWorkflows(service v1alpha1.Service) []gocto.Workflow {
 
 	top := gocto.Workflow{
 		Name: service.Name,
-		On: gocto.WorkflowOn{
-			Dispatch: &gocto.OnDispatch{},
-			Call:     &gocto.OnCall{},
-		},
+		On:   service.Github.On,
 		Jobs: make(map[string]gocto.Job),
+	}
+
+	if top.On.Dispatch == nil {
+		top.On.Dispatch = &gocto.OnDispatch{}
 	}
 
 	var prevGroupJob *gocto.Job

@@ -1,7 +1,13 @@
 name: example-service
 "on":
-  workflow_call: {}
   workflow_dispatch: {}
+  push:
+    onpaths:
+      paths:
+      - ./examples/example-service/manifests
+    onbranches:
+      branches:
+      - main
 jobs:
   staging:
     name: staging

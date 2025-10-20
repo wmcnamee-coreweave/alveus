@@ -7,6 +7,7 @@ import (
 	"syscall"
 
 	argov1alpha1 "github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
+	"github.com/cakehappens/gocto"
 	"github.com/goccy/go-yaml"
 	"github.com/oklog/run"
 
@@ -36,15 +37,29 @@ func main() {
 }
 
 func createServiceFile() error {
+	const manifestsPath = "./examples/example-service/manifests"
+
 	service := &v1alpha1.Service{
 		Name: "example-service",
 		ArgoCD: v1alpha1.ArgoCD{
 			Source: v1alpha1.Source{
-				Path:         "./examples/example-service/manifests",
+				Path:         manifestsPath,
 				CommitBranch: "",
 				Include:      "",
 				Exclude:      "",
 				Jsonnet:      argov1alpha1.ApplicationSourceJsonnet{},
+			},
+		},
+		Github: v1alpha1.Github{
+			On: gocto.WorkflowOn{
+				Push: &gocto.OnPush{
+					OnPaths: gocto.OnPaths{
+						Paths: []string{manifestsPath},
+					},
+					OnBranches: gocto.OnBranches{
+						Branches: []string{"main"},
+					},
+				},
 			},
 		},
 		DestinationGroups: []v1alpha1.DestinationGroup{

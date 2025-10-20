@@ -10,3 +10,13 @@ destinationNamespace: my-namespace
 argocd:
   source:
     path: ./examples/example-service/manifests
+github:
+  "on":
+    push:
+      onpaths:
+        paths:
+        - ./examples/example-service/manifests
+      onbranches:
+        branches:
+        - main
+      ontags: {}
