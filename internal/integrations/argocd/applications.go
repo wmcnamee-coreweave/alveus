@@ -70,8 +70,7 @@ func WithSource(src v1alpha1.Source) Option {
 
 func FromServiceAPI(service v1alpha1.Service) Option {
 	return func(o *Options) {
-		o.SyncPolicy = service.SyncPolicy
-		o.IgnoreDifferences = service.IgnoreDifferences
+		o.SyncPolicy = &service.ArgoCD.SyncPolicy
 	}
 }
 

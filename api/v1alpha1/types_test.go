@@ -278,7 +278,7 @@ var _ = Describe("Destinations.Validate()", func() {
 						Namespace: "my-namespace",
 						Name:      "http://kube.local",
 					},
-					ArgoCDLogin: ArgoCDLogin{
+					ArgoCD: ArgoCD{
 						Hostname: "foo",
 					},
 				},
@@ -319,7 +319,7 @@ var _ = Describe("Destinations.Validate()", func() {
 			When("argocdLogin.hostname is empty", func() {
 				BeforeEach(func() {
 					for i := range destinations {
-						destinations[i].ArgoCDLogin.Hostname = ""
+						destinations[i].ArgoCD.Hostname = ""
 					}
 				})
 

@@ -34,10 +34,10 @@ func (s *Service) Inflate() {
 				s.DestinationNamespace,
 			)
 
-			dest.ArgoCDLogin.Hostname = util.CoalesceStrings(
-				dest.ArgoCDLogin.Hostname,
-				group.ArgoCDLogin.Hostname,
-				s.ArgoCDLogin.Hostname,
+			dest.ArgoCD.Hostname = util.CoalesceStrings(
+				dest.ArgoCD.Hostname,
+				group.ArgoCD.Hostname,
+				s.ArgoCD.Hostname,
 			)
 		}
 	}

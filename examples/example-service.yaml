@@ -1,11 +1,12 @@
 name: example-service
-source:
-  path: ./examples/example-service/manifests
 destinationGroups:
 - name: staging
   destinations:
   - applicationdestination:
       server: http://kube.local
-    argocdLogin:
+    argocd:
       hostname: argocd.local
 destinationNamespace: my-namespace
+argocd:
+  source:
+    path: ./examples/example-service/manifests

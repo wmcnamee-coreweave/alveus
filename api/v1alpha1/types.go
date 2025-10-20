@@ -11,18 +11,21 @@ import (
 
 type Service struct {
 	Name                              string                            `json:"name"`
-	Source                            Source                            `json:"source"`
-	ArgoCDLogin                       ArgoCDLogin                       `json:"argocdLogin,omitempty,omitzero"`
-	IgnoreDifferences                 argov1alpha1.IgnoreDifferences    `json:"ignoreDifferences,omitempty,omitzero"`
 	PrePromotionAnalysis              *rolloutsv1alpha1.RolloutAnalysis `json:"prePromotionAnalysis,omitempty,omitzero"`
 	PostPromotionAnalysis             *rolloutsv1alpha1.RolloutAnalysis `json:"postPromotionAnalysis,omitempty,omitzero"`
 	DestinationGroups                 DestinationGroups                 `json:"destinationGroups"`
 	DestinationNamespace              string                            `json:"destinationNamespace"`
-	SyncPolicy                        *argov1alpha1.SyncPolicy          `json:"syncPolicy,omitempty,omitzero"`
 	ApplicationNameUniquenessStrategy ApplicationNameUniquenessStrategy `json:"applicationNameUniquenessStrategy,omitempty,omitzero"`
+	ArgoCD                            ArgoCD                            `json:"argocd,omitempty,omitzero"`
 
 	sourceValidatorFunc            func(source Source) error
 	destinationGroupsValidatorFunc func(groups DestinationGroups) error
+}
+
+type ArgoCD struct {
+	Hostname   string                  `json:"hostname,omitempty,omitzero"`
+	Source     Source                  `json:"source,omitempty,omitzero"`
+	SyncPolicy argov1alpha1.SyncPolicy `json:"syncPolicy,omitempty,omitzero"`
 }
 
 type ApplicationNameUniquenessStrategy struct {
@@ -47,7 +50,7 @@ func (s *Service) Validate() error {
 		}
 	}
 
-	err := s.sourceValidatorFunc(s.Source)
+	err := s.sourceValidatorFunc(s.ArgoCD.Source)
 	if err != nil {
 		errs = append(errs, fmt.Errorf("validating source: %w", err))
 	}
@@ -113,10 +116,12 @@ func (s *Source) Validate() error {
 }
 
 type DestinationGroup struct {
-	Name                 string        `json:"name"`
-	Destinations         []Destination `json:"destinations"`
-	DestinationNamespace string        `json:"destinationNamespace,omitempty,omitzero"`
-	ArgoCDLogin          ArgoCDLogin   `json:"argocdLogin,omitempty,omitzero"`
+	Name                  string                            `json:"name"`
+	Destinations          []Destination                     `json:"destinations"`
+	DestinationNamespace  string                            `json:"destinationNamespace,omitempty,omitzero"`
+	ArgoCD                ArgoCD                            `json:"argocd,omitempty,omitzero"`
+	PrePromotionAnalysis  *rolloutsv1alpha1.RolloutAnalysis `json:"prePromotionAnalysis,omitempty,omitzero"`
+	PostPromotionAnalysis *rolloutsv1alpha1.RolloutAnalysis `json:"postPromotionAnalysis,omitempty,omitzero"`
 
 	destinationsValidatorFunc func(destinations Destinations) error
 }
@@ -182,11 +187,9 @@ func (ds Destinations) Validate() error {
 
 type Destination struct {
 	*argov1alpha1.ApplicationDestination
-	ArgoCDLogin ArgoCDLogin `json:"argocdLogin,omitempty,omitzero"`
-}
-
-type ArgoCDLogin struct {
-	Hostname string `json:"hostname,omitempty,omitzero"`
+	ArgoCD                ArgoCD                            `json:"argocd,omitempty,omitzero"`
+	PrePromotionAnalysis  *rolloutsv1alpha1.RolloutAnalysis `json:"prePromotionAnalysis,omitempty,omitzero"`
+	PostPromotionAnalysis *rolloutsv1alpha1.RolloutAnalysis `json:"postPromotionAnalysis,omitempty,omitzero"`
 }
 
 func (d *Destination) Validate() error {
@@ -208,7 +211,7 @@ func (d *Destination) Validate() error {
 		errs = append(errs, errors.New("only one of clusterName or clusterUrl may be specified"))
 	}
 
-	if d.ArgoCDLogin.Hostname == "" {
+	if d.ArgoCD.Hostname == "" {
 		errs = append(errs, errors.New("argocdLogin.hostname is required"))
 	}
 

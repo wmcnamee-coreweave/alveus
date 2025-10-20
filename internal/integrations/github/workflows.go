@@ -23,7 +23,7 @@ func NewWorkflows(service v1alpha1.Service) []gocto.Workflow {
 		dgWf, subWfs := newDeploymentGroupWorkflows(newDeploymentGroupWorkflowInput{
 			namePrefix:           service.Name,
 			group:                dg,
-			checkoutCommitBranch: service.Source.CommitBranch,
+			checkoutCommitBranch: service.ArgoCD.Source.CommitBranch,
 		})
 		workflows = append(workflows, dgWf)
 		workflows = append(workflows, subWfs...)
@@ -86,7 +86,7 @@ func newDeploymentWorkflow(input newDeploymentWorkflowInput) gocto.Workflow {
 		name:                 jobName,
 		destination:          input.destination,
 		checkoutCommitBranch: input.checkoutCommitBranch,
-		argocdHostname:       input.destination.ArgoCDLogin.Hostname,
+		argocdHostname:       input.destination.ArgoCD.Hostname,
 	})
 
 	wf := gocto.Workflow{

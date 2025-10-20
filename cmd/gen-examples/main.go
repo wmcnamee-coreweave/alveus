@@ -38,12 +38,15 @@ func main() {
 func createServiceFile() error {
 	service := &v1alpha1.Service{
 		Name: "example-service",
-		Source: v1alpha1.Source{
-			Path: "./examples/example-service/manifests",
+		ArgoCD: v1alpha1.ArgoCD{
+			Source: v1alpha1.Source{
+				Path:         "./examples/example-service/manifests",
+				CommitBranch: "",
+				Include:      "",
+				Exclude:      "",
+				Jsonnet:      argov1alpha1.ApplicationSourceJsonnet{},
+			},
 		},
-		IgnoreDifferences:     nil,
-		PrePromotionAnalysis:  nil,
-		PostPromotionAnalysis: nil,
 		DestinationGroups: []v1alpha1.DestinationGroup{
 			{
 				Name: "staging",
@@ -52,7 +55,7 @@ func createServiceFile() error {
 						ApplicationDestination: &argov1alpha1.ApplicationDestination{
 							Server: "http://kube.local",
 						},
-						ArgoCDLogin: v1alpha1.ArgoCDLogin{
+						ArgoCD: v1alpha1.ArgoCD{
 							Hostname: "argocd.local",
 						},
 					},
@@ -60,7 +63,6 @@ func createServiceFile() error {
 			},
 		},
 		DestinationNamespace: "my-namespace",
-		SyncPolicy:           nil,
 	}
 
 	serviceBytes, err := yaml.Marshal(service)
