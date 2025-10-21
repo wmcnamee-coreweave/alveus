@@ -197,7 +197,7 @@ type Destination struct {
 	Namespace string `json:"namespace,omitempty" protobuf:"bytes,2,opt,name=namespace"`
 	// Name is an alternate way of specifying the target cluster by its symbolic name. This must be set if Server is not set.
 	Name                  string                            `json:"name,omitempty" protobuf:"bytes,3,opt,name=name"`
-	ArgoCD                ArgoCD                            `json:"argocd,omitempty,omitzero"`
+	ArgoCD                ArgoCD                            `json:"argoCD,omitempty,omitzero"`
 	Github                Github                            `json:"github,omitempty,omitzero"`
 	PrePromotionAnalysis  *rolloutsv1alpha1.RolloutAnalysis `json:"prePromotionAnalysis,omitempty,omitzero"`
 	PostPromotionAnalysis *rolloutsv1alpha1.RolloutAnalysis `json:"postPromotionAnalysis,omitempty,omitzero"`

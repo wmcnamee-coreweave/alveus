@@ -3,7 +3,7 @@ destinationGroups:
 - name: staging
   destinations:
   - server: http://kube.local
-    argocd:
+    argoCD:
       hostname: argocd.local
 destinationNamespace: my-namespace
 argocd:
