@@ -15,7 +15,7 @@ type Service struct {
 	DestinationGroups                 DestinationGroups                 `json:"destinationGroups"`
 	DestinationNamespace              string                            `json:"destinationNamespace"`
 	ApplicationNameUniquenessStrategy ApplicationNameUniquenessStrategy `json:"applicationNameUniquenessStrategy,omitempty,omitzero"`
-	ArgoCD                            ArgoCD                            `json:"argocd,omitempty,omitzero"`
+	ArgoCD                            ArgoCD                            `json:"argoCD,omitempty,omitzero"`
 	Github                            Github                            `json:"github,omitempty,omitzero"`
 	PrePromotionAnalysis              *rolloutsv1alpha1.RolloutAnalysis `json:"prePromotionAnalysis,omitempty,omitzero"`
 	PostPromotionAnalysis             *rolloutsv1alpha1.RolloutAnalysis `json:"postPromotionAnalysis,omitempty,omitzero"`
@@ -126,7 +126,7 @@ type DestinationGroup struct {
 	Name                  string                            `json:"name"`
 	Destinations          []Destination                     `json:"destinations"`
 	DestinationNamespace  string                            `json:"destinationNamespace,omitempty,omitzero"`
-	ArgoCD                ArgoCD                            `json:"argocd,omitempty,omitzero"`
+	ArgoCD                ArgoCD                            `json:"argoCD,omitempty,omitzero"`
 	Github                Github                            `json:"github,omitempty,omitzero"`
 	PrePromotionAnalysis  *rolloutsv1alpha1.RolloutAnalysis `json:"prePromotionAnalysis,omitempty,omitzero"`
 	PostPromotionAnalysis *rolloutsv1alpha1.RolloutAnalysis `json:"postPromotionAnalysis,omitempty,omitzero"`

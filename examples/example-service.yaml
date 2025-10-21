@@ -6,7 +6,7 @@ destinationGroups:
     argoCD:
       hostname: argocd.local
 destinationNamespace: my-namespace
-argocd:
+argoCD:
   source:
     path: ./examples/example-service/manifests
 github:
