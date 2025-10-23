@@ -53,10 +53,10 @@ func createServiceFile() error {
 		Github: v1alpha1.Github{
 			On: gocto.WorkflowOn{
 				Push: &gocto.OnPush{
-					OnPaths: gocto.OnPaths{
+					OnPaths: &gocto.OnPaths{
 						Paths: []string{manifestsPath},
 					},
-					OnBranches: gocto.OnBranches{
+					OnBranches: &gocto.OnBranches{
 						Branches: []string{"main"},
 					},
 				},

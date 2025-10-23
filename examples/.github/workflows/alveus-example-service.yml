@@ -2,12 +2,10 @@ name: example-service
 "on":
   workflow_dispatch: {}
   push:
-    onpaths:
-      paths:
-      - ./examples/example-service/manifests
-    onbranches:
-      branches:
-      - main
+    paths:
+    - ./examples/example-service/manifests
+    branches:
+    - main
 jobs:
   staging:
     name: staging

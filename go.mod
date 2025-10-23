@@ -5,7 +5,7 @@ go 1.25.3
 require (
 	github.com/argoproj/argo-cd/v3 v3.1.0
 	github.com/argoproj/argo-rollouts v1.8.3
-	github.com/cakehappens/gocto v0.3.1
+	github.com/cakehappens/gocto v0.4.1
 	github.com/go-git/go-billy/v6 v6.0.0-20251013092257-9a6bbea5b11a
 	github.com/goccy/go-yaml v1.18.0
 	github.com/lithammer/dedent v1.1.0

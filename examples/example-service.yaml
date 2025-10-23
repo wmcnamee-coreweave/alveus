@@ -12,10 +12,7 @@ argoCD:
 github:
   "on":
     push:
-      onpaths:
-        paths:
-        - ./examples/example-service/manifests
-      onbranches:
-        branches:
-        - main
-      ontags: {}
+      paths:
+      - ./examples/example-service/manifests
+      branches:
+      - main
