@@ -1,9 +1,10 @@
 name: podinfo-demo
 "on":
+  workflow_call: {}
   workflow_dispatch: {}
 jobs:
   in-cluster:
     name: in-cluster
-    uses: .github/workflows/alveus-podinfo-in-cluster.yml
+    uses: ./.github/workflows/alveus-podinfo-in-cluster.yml
     secrets:
       inherit: true

@@ -4,9 +4,10 @@ go 1.25.3
 
 require (
 	github.com/argoproj/argo-cd/v3 v3.1.0
-	github.com/cakehappens/gocto v0.4.1
+	github.com/cakehappens/gocto v0.5.2
 	github.com/go-git/go-billy/v6 v6.0.0-20251013092257-9a6bbea5b11a
 	github.com/goccy/go-yaml v1.18.0
+	github.com/goforj/godump v1.6.0
 	github.com/lithammer/dedent v1.1.0
 	github.com/oklog/run v1.2.0
 	github.com/onsi/ginkgo/v2 v2.24.0
@@ -64,7 +65,6 @@ require (
 	github.com/go-redis/cache/v9 v9.0.0 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
-	github.com/goforj/godump v1.6.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.2 // indirect

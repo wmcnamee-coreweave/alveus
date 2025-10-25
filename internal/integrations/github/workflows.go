@@ -68,6 +68,7 @@ func newDeploymentGroupWorkflows(input newDeploymentGroupWorkflowInput) (gocto.W
 		Name: input.namePrefix + "-" + input.group.Name,
 		On: gocto.WorkflowOn{
 			Dispatch: &gocto.OnDispatch{},
+			Call:     &gocto.OnCall{},
 		},
 		Jobs: make(map[string]gocto.Job),
 	}

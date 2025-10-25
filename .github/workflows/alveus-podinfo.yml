@@ -9,6 +9,6 @@ name: podinfo
 jobs:
   demo:
     name: demo
-    uses: .github/workflows/alveus-podinfo-demo.yml
+    uses: ./.github/workflows/alveus-podinfo-demo.yml
     secrets:
       inherit: true
