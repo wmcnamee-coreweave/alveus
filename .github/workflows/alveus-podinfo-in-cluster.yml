@@ -68,5 +68,3 @@ jobs:
           --grpc-web \
           --timeout 300 \
           ;
-    secrets:
-      inherit: true

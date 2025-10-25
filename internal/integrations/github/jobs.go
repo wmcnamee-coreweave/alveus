@@ -18,7 +18,7 @@ func newDeployGroupJob(name string, wf gocto.Workflow) gocto.Job {
 	job := gocto.Job{
 		Name: name,
 		Uses: workflowPath,
-		Secrets: gocto.Secrets{
+		Secrets: &gocto.Secrets{
 			Inherit: true,
 		},
 	}
@@ -141,8 +141,7 @@ func newDeployJob(input newDeployJobInput) gocto.Job {
 			EnvNameGitCommitMessage:      fmt.Sprintf("feat: 🚀 deploy to %s", destinationFriendlyName),
 			EnvNameNewTargetRevision:     "123new",
 		},
-		Secrets: *input.destination.Github.Secrets,
-		Steps:   steps,
+		Steps: steps,
 	}
 
 	return job

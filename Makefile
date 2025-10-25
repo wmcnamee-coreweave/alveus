@@ -63,8 +63,8 @@ release:
 .PHONY: example
 example: build
 	cd examples && ../alveus generate \
-		-s example-service.yaml \
-		-r github.com/ghostsquad/fake
+		-r github.com/ghostsquad/fake \
+		example-service.yaml
 
 demo: build
 	./alveus generate \
