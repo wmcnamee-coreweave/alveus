@@ -53,7 +53,7 @@ func newDeployJob(input newDeployJobInput) gocto.Job {
 
 	steps := []gocto.Step{
 		{
-			Uses: "checkout@v4",
+			Uses: "actions/checkout@v4",
 			With: map[string]any{
 				"ref": input.checkoutCommitBranch,
 				// otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
