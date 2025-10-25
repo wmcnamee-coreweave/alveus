@@ -155,3 +155,23 @@ func FilenameFor(application argov1alpha1.Application) string {
 		),
 	) + ".yaml"
 }
+
+type ApplicationRepository map[string]argov1alpha1.Application
+
+func (r ApplicationRepository) GetByDestination(dest v1alpha1.Destination) (string, argov1alpha1.Application, bool) {
+	for filePath, app := range r {
+		if app.Spec.Destination.Namespace != dest.Namespace {
+			continue
+		}
+
+		if app.Spec.Destination.Server == dest.Server {
+			return filePath, app, true
+		}
+
+		if app.Spec.Destination.Name == dest.Name {
+			return filePath, app, true
+		}
+	}
+
+	return "", argov1alpha1.Application{}, false
+}

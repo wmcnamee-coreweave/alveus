@@ -6,7 +6,6 @@ import (
 	"os"
 	"syscall"
 
-	argov1alpha1 "github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
 	"github.com/cakehappens/gocto"
 	"github.com/goccy/go-yaml"
 	"github.com/oklog/run"
@@ -37,17 +36,13 @@ func main() {
 }
 
 func createServiceFile() error {
-	const manifestsPath = "./examples/example-service/manifests"
+	const manifestsPath = ".alveus/demo/manifests"
 
 	service := &v1alpha1.Service{
 		Name: "example-service",
 		ArgoCD: v1alpha1.ArgoCD{
 			Source: v1alpha1.Source{
-				Path:         manifestsPath,
-				CommitBranch: "",
-				Include:      "",
-				Exclude:      "",
-				Jsonnet:      argov1alpha1.ApplicationSourceJsonnet{},
+				Path: manifestsPath,
 			},
 		},
 		Github: v1alpha1.Github{
@@ -69,13 +64,16 @@ func createServiceFile() error {
 					{
 						Server: "http://kube.local",
 						ArgoCD: v1alpha1.ArgoCD{
-							Hostname: "argocd.local",
+							LoginCommandArgs: []string{
+								"--core",
+								"--grpc-web",
+							},
 						},
 					},
 				},
 			},
 		},
-		DestinationNamespace: "my-namespace",
+		DestinationNamespace: "podinfo",
 	}
 
 	serviceBytes, err := yaml.Marshal(service)

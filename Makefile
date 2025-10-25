@@ -65,3 +65,8 @@ example: build
 	cd examples && ../alveus generate \
 		-s example-service.yaml \
 		-r github.com/ghostsquad/fake
+
+demo: build
+	./alveus generate \
+		--repo-url https://github.com/ghostsquad/alveus.git \
+		./demo.yaml

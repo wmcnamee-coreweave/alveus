@@ -3,10 +3,10 @@ name: example-service
   workflow_dispatch: {}
   push:
     paths:
-    - ./examples/example-service/manifests
+    - ../../../demo/manifests
     branches:
     - main
 jobs:
   staging:
     name: staging
-    uses: .github/workflows/example-service-staging.yml
+    uses: .github/workflows/alveus-example-service-staging.yml

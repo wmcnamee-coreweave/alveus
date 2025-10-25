@@ -1,21 +1,21 @@
-name: example-service-kube-local
+name: podinfo-in-cluster
 "on":
   workflow_call: {}
   workflow_dispatch: {}
 concurrency:
-  group: kube-local
+  group: in-cluster
 defaults:
   run:
     shell: bash
 jobs:
-  kube-local:
-    name: kube-local
+  in-cluster:
+    name: in-cluster
     runs-on:
     - ubuntu-latest
     env:
-      ARGOCD_APPLICATION_FILE: .alveus/applications/example-service-kube-local.yaml
+      ARGOCD_APPLICATION_FILE: .alveus/applications/podinfo-in-cluster.yaml
       ARGOCD_APPLICATION_NEW_TARGET_REVISION: 123new
-      GIT_COMMIT_MESSAGE: "feat: 🚀 deploy to kube-local"
+      GIT_COMMIT_MESSAGE: "feat: 🚀 deploy to in-cluster"
     defaults:
       run:
         shell: bash
@@ -25,6 +25,13 @@ jobs:
         fetch-depth: 0
         persist-credentials: false
         ref: ""
+    - uses: jdx/mise-action@v3
+      with:
+        version: 2025.10.17
+    - name: create-kube-config
+      run: |
+        mkdir -p ~/.kube
+        echo "${{ secrets.KUBE_CONFIG_B64 }}" | base64 -d > ~/.kube/config
     - name: git-config
       run: |-
         git config --global user.name '${{ github.actor }}'
@@ -61,3 +68,5 @@ jobs:
           --grpc-web \
           --timeout 300 \
           ;
+    secrets:
+      inherit: true

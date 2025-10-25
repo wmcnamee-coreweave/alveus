@@ -1,0 +1,27 @@
+name: podinfo
+destinationGroups:
+- name: demo
+  destinations:
+  - name: in-cluster
+destinationNamespace: podinfo
+argoCD:
+  source:
+    path: .alveus/demo/manifests
+  loginCommandArgs:
+    - --core
+    - --grpc-web
+github:
+  "on":
+    push:
+      paths:
+      - .alveus/demo/manifests
+      branches:
+      - main
+  preDeploySteps:
+    - uses: jdx/mise-action@v3
+      with:
+        version: 2025.10.17
+    - name: create-kube-config
+      run: |
+        mkdir -p ~/.kube
+        echo "${{ secrets.KUBE_CONFIG_B64 }}" | base64 -d > ~/.kube/config

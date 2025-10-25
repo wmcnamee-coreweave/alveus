@@ -4,15 +4,17 @@ destinationGroups:
   destinations:
   - server: http://kube.local
     argoCD:
-      hostname: argocd.local
-destinationNamespace: my-namespace
+      loginCommandArgs:
+      - --core
+      - --grpc-web
+destinationNamespace: podinfo
 argoCD:
   source:
-    path: ./examples/example-service/manifests
+    path: .alveus/demo/manifests
 github:
   "on":
     push:
       paths:
-      - ./examples/example-service/manifests
+      - .alveus/demo/manifests
       branches:
       - main

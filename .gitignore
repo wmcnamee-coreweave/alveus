@@ -150,3 +150,5 @@ devenv.yaml
 
 # mise
 mise.local.toml
+
+demo-kubeconfig.yaml

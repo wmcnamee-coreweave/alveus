@@ -23,7 +23,6 @@ import (
 
 func NewGenerateCommand() *cobra.Command {
 	var repoURL string
-	var serviceFile string
 	var applicationOutputPath string
 	var workflowOutputPath string
 
@@ -32,6 +31,11 @@ func NewGenerateCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var serviceBytes []byte
 			var err error
+
+			var serviceFile string
+			if len(args) > 0 {
+				serviceFile = args[0]
+			}
 
 			if serviceFile == "" || serviceFile == "-" {
 				stat, _ := os.Stdin.Stat()
@@ -66,7 +70,13 @@ func NewGenerateCommand() *cobra.Command {
 
 			var wfs []gocto.Workflow
 
-			wfs = github.NewWorkflows(service)
+			appRepo := make(argocd.ApplicationRepository)
+			for _, app := range apps {
+				appPath := filepath.Join(applicationOutputPath, argocd.FilenameFor(app))
+				appRepo[appPath] = app
+			}
+
+			wfs = github.NewWorkflows(service, appRepo)
 
 			{
 				fs := osfs.New(".")
@@ -88,8 +98,6 @@ func NewGenerateCommand() *cobra.Command {
 	if err != nil {
 		panic(err)
 	}
-
-	f.StringVarP(&serviceFile, "service-file", "s", "", `path to a service file. Omit or use "-" for stdin`)
 	f.StringVar(&applicationOutputPath, "application-output-path", "./.alveus/applications", "path to where to write ArgoCD application resources")
 
 	f.StringVar(&workflowOutputPath, "workflow-output-path", gocto.DefaultPathToWorkflows, "path to where to write Github workflow files")
@@ -132,7 +140,7 @@ func generateApps(repoURL, targetRevision string, service v1alpha1.Service) ([]a
 					serviceName: service.Name,
 					groupName:   group.Name,
 					destination: dest,
-					strategy:    v1alpha1.ApplicationNameUniquenessStrategy{},
+					strategy:    service.ApplicationNameUniquenessStrategy,
 				},
 			)
 
@@ -204,8 +212,7 @@ func writeWorkflows(fs billy.Filesystem, basepath string, wfs []gocto.Workflow) 
 	}
 
 	for _, wf := range wfs {
-		filename := expectedPrefix + wf.GetFilename()
-		fullFilename := filepath.Join(basepath, filename)
+		fullFilename := filepath.Join(basepath, wf.GetFilename())
 		fileBytes, err := util.YamlMarshalWithOptions(wf)
 		if err != nil {
 			return fmt.Errorf("marshalling workflow to yaml: %w", err)

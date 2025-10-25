@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	argov1alpha1 "github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
-	rolloutsv1alpha1 "github.com/argoproj/argo-rollouts/pkg/apis/rollouts/v1alpha1"
 	"github.com/cakehappens/gocto"
 )
 
@@ -17,8 +16,6 @@ type Service struct {
 	ApplicationNameUniquenessStrategy ApplicationNameUniquenessStrategy `json:"applicationNameUniquenessStrategy,omitempty,omitzero"`
 	ArgoCD                            ArgoCD                            `json:"argoCD,omitempty,omitzero"`
 	Github                            Github                            `json:"github,omitempty,omitzero"`
-	PrePromotionAnalysis              *rolloutsv1alpha1.RolloutAnalysis `json:"prePromotionAnalysis,omitempty,omitzero"`
-	PostPromotionAnalysis             *rolloutsv1alpha1.RolloutAnalysis `json:"postPromotionAnalysis,omitempty,omitzero"`
 
 	// For Testing
 	sourceValidatorFunc            func(source Source) error
@@ -26,13 +23,17 @@ type Service struct {
 }
 
 type ArgoCD struct {
-	Hostname   string                  `json:"hostname,omitempty,omitzero"`
-	Source     Source                  `json:"source,omitempty,omitzero"`
-	SyncPolicy argov1alpha1.SyncPolicy `json:"syncPolicy,omitempty,omitzero"`
+	LoginCommandArgs []string                `json:"loginCommandArgs,omitempty"`
+	Source           Source                  `json:"source,omitempty,omitzero"`
+	SyncPolicy       argov1alpha1.SyncPolicy `json:"syncPolicy,omitempty,omitzero"`
 }
 
 type Github struct {
-	On gocto.WorkflowOn `json:"on,omitempty,omitzero"`
+	On              gocto.WorkflowOn     `json:"on,omitempty,omitzero"`
+	PreDeploySteps  []gocto.Step         `json:"preDeploySteps,omitempty"`
+	PostDeploySteps []gocto.Step         `json:"postDeploySteps,omitempty"`
+	ExtraDeployJobs map[string]gocto.Job `json:"extraDeployJobs,omitempty"`
+	Secrets         *gocto.Secrets       `json:"secrets,omitempty"`
 }
 
 type ApplicationNameUniquenessStrategy struct {
@@ -123,13 +124,11 @@ func (s *Source) Validate() error {
 }
 
 type DestinationGroup struct {
-	Name                  string                            `json:"name"`
-	Destinations          []Destination                     `json:"destinations"`
-	DestinationNamespace  string                            `json:"destinationNamespace,omitempty,omitzero"`
-	ArgoCD                ArgoCD                            `json:"argoCD,omitempty,omitzero"`
-	Github                Github                            `json:"github,omitempty,omitzero"`
-	PrePromotionAnalysis  *rolloutsv1alpha1.RolloutAnalysis `json:"prePromotionAnalysis,omitempty,omitzero"`
-	PostPromotionAnalysis *rolloutsv1alpha1.RolloutAnalysis `json:"postPromotionAnalysis,omitempty,omitzero"`
+	Name                 string        `json:"name"`
+	Destinations         []Destination `json:"destinations"`
+	DestinationNamespace string        `json:"destinationNamespace,omitempty,omitzero"`
+	ArgoCD               ArgoCD        `json:"argoCD,omitempty,omitzero"`
+	Github               Github        `json:"github,omitempty,omitzero"`
 
 	// For Testing
 	destinationsValidatorFunc func(destinations Destinations) error
@@ -196,11 +195,9 @@ type Destination struct {
 	// The namespace will only be set for namespace-scoped resources that have not set a value for .metadata.namespace
 	Namespace string `json:"namespace,omitempty" protobuf:"bytes,2,opt,name=namespace"`
 	// Name is an alternate way of specifying the target cluster by its symbolic name. This must be set if Server is not set.
-	Name                  string                            `json:"name,omitempty" protobuf:"bytes,3,opt,name=name"`
-	ArgoCD                ArgoCD                            `json:"argoCD,omitempty,omitzero"`
-	Github                Github                            `json:"github,omitempty,omitzero"`
-	PrePromotionAnalysis  *rolloutsv1alpha1.RolloutAnalysis `json:"prePromotionAnalysis,omitempty,omitzero"`
-	PostPromotionAnalysis *rolloutsv1alpha1.RolloutAnalysis `json:"postPromotionAnalysis,omitempty,omitzero"`
+	Name   string `json:"name,omitempty" protobuf:"bytes,3,opt,name=name"`
+	ArgoCD ArgoCD `json:"argoCD,omitempty,omitzero"`
+	Github Github `json:"github,omitempty,omitzero"`
 }
 
 func (d *Destination) Validate() error {
@@ -220,10 +217,6 @@ func (d *Destination) Validate() error {
 
 	if d.Name != "" && d.Server != "" {
 		errs = append(errs, errors.New("only one of clusterName or clusterUrl may be specified"))
-	}
-
-	if d.ArgoCD.Hostname == "" {
-		errs = append(errs, errors.New("argocdLogin.hostname is required"))
 	}
 
 	return errors.Join(errs...)

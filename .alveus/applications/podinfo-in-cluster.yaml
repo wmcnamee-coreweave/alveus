@@ -1,16 +1,16 @@
 kind: Application
 apiVersion: argoproj.io/v1alpha1
 metadata:
-  name: example-service-kube-local
+  name: podinfo-in-cluster
   namespace: argocd
 spec:
   source:
-    repoURL: github.com/ghostsquad/fake
+    repoURL: https://github.com/ghostsquad/alveus.git
     targetRevision: HEAD
     directory:
       recurse: true
       include: "{*.yml,*.yaml}"
   destination:
-    server: http://kube.local
     namespace: podinfo
+    name: in-cluster
   project: default

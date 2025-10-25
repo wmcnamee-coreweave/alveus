@@ -3,7 +3,6 @@ package github
 import (
 	"fmt"
 
-	argov1alpha1 "github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
 	"github.com/cakehappens/gocto"
 
 	"github.com/ghostsquad/alveus/api/v1alpha1"
@@ -16,6 +15,9 @@ func newDeployGroupJob(name string, wf gocto.Workflow) gocto.Job {
 	job := gocto.Job{
 		Name: name,
 		Uses: workflowPath,
+		Secrets: gocto.Secrets{
+			Inherit: true,
+		},
 	}
 
 	return job
@@ -25,18 +27,16 @@ type newDeployJobInput struct {
 	name                 string
 	destination          v1alpha1.Destination
 	checkoutCommitBranch string
-	argocdHostname       string
-	argoCDApplication    argov1alpha1.Application
+	appFilePath          string
+	argoLoginCommandArgs []string
 	syncTimeoutSeconds   int
 }
 
 func newDeployJob(input newDeployJobInput) gocto.Job {
 	const (
-		EnvNameArgoCDHostname        = "ARGOCD_HOSTNAME"
 		EnvNameArgoCDApplicationFile = "ARGOCD_APPLICATION_FILE"
 		EnvNameGitCommitMessage      = "GIT_COMMIT_MESSAGE"
 		EnvNameNewTargetRevision     = "ARGOCD_APPLICATION_NEW_TARGET_REVISION"
-		EnvNameArgoCDAuthToken       = "ARGOCD_AUTH_TOKEN"
 	)
 
 	name := input.name
@@ -48,6 +48,83 @@ func newDeployJob(input newDeployJobInput) gocto.Job {
 
 	destinationFriendlyName := v1alpha1.CoalesceSanitizeDestination(destination)
 
+	steps := []gocto.Step{
+		{
+			Uses: "checkout@v4",
+			With: map[string]any{
+				"ref": input.checkoutCommitBranch,
+				// otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
+				"persist-credentials": false,
+				// otherwise, you will fail to push refs to dest repo
+				"fetch-depth": 0,
+			},
+		},
+	}
+
+	steps = append(steps, input.destination.Github.PreDeploySteps...)
+
+	steps = append(steps,
+		gocto.Step{
+			Name: "git-config",
+			Run: util.SprintfDedent(`
+					git config --global user.name '${{ github.actor }}'
+					git config --global user.email '${{ github.actor }}@users.noreply.github.com'
+				`),
+		},
+		gocto.Step{
+			Uses: "frenck/action-setup-yq@v1",
+		},
+		gocto.Step{
+			Name: "update-application-yaml",
+			Run: util.SprintfDedent(`
+					yq e '.spec.source.targetRevision = "${{ env.%s }}"' \
+					'${%s}'
+				`, EnvNameNewTargetRevision, EnvNameArgoCDApplicationFile),
+		},
+		gocto.Step{
+			Name: "git-add-commit",
+			Run: util.SprintfDedent(`
+					git add "${%s}"
+					git commit -m "${%s}"
+				`, EnvNameArgoCDApplicationFile, EnvNameGitCommitMessage),
+		},
+		gocto.Step{
+			Uses: "actions-js/push@v1.5",
+			With: map[string]any{
+				"github_token": "${{ secrets.GITHUB_TOKEN }}",
+				"branch":       input.checkoutCommitBranch,
+			},
+		},
+		gocto.Step{
+			Name: "argocd-login",
+			Run: util.SprintfDedent(`
+					argocd login \
+						%s \
+						;
+				`, util.Join(` \`+"\n\t", input.argoLoginCommandArgs...)),
+		},
+		gocto.Step{
+			Name: "argocd-upsert",
+			Run: util.SprintfDedent(`
+					argocd app create \
+						--grpc-web \
+						--upsert \
+						--file "${%s}" \
+						;
+				`, EnvNameArgoCDApplicationFile),
+		},
+		gocto.Step{
+			Name: "argocd-sync",
+			Run: util.SprintfDedent(`
+					argocd app sync \
+						--grpc-web \
+						--timeout %d \
+						;
+				`, input.syncTimeoutSeconds),
+		})
+
+	steps = append(steps, input.destination.Github.PostDeploySteps...)
+
 	job := gocto.Job{
 		Name:   name,
 		RunsOn: []string{"ubuntu-latest"},
@@ -57,74 +134,12 @@ func newDeployJob(input newDeployJobInput) gocto.Job {
 			},
 		},
 		Env: map[string]string{
-			EnvNameArgoCDHostname:        input.argocdHostname,
-			EnvNameArgoCDApplicationFile: "fake-application-file.yaml",
+			EnvNameArgoCDApplicationFile: input.appFilePath,
 			EnvNameGitCommitMessage:      fmt.Sprintf("feat: 🚀 deploy to %s", destinationFriendlyName),
 			EnvNameNewTargetRevision:     "123new",
-			EnvNameArgoCDAuthToken:       "fake-auth-token",
 		},
-		Steps: []gocto.Step{
-			{
-				Uses: "checkout@v4",
-				With: map[string]any{
-					"ref": input.checkoutCommitBranch,
-					// otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
-					"persist-credentials": false,
-					// otherwise, you will fail to push refs to dest repo
-					"fetch-depth": 0,
-				},
-			},
-			{
-				Name: "git-config",
-				Run: util.SprintfDedent(`
-					git config --global user.name '${{ github.actor }}'
-					git config --global user.email '${{ github.actor }}@users.noreply.github.com'
-				`),
-			},
-			{
-				Uses: "frenck/action-setup-yq@v1",
-			},
-			{
-				Name: "update-application-yaml",
-				Run: util.SprintfDedent(`
-					yq e '.spec.source.targetRevision = "${{ env.%s }}"' \
-					'${%s}'
-				`, EnvNameNewTargetRevision, EnvNameArgoCDApplicationFile),
-			},
-			{
-				Name: "git-add-commit",
-				Run: util.SprintfDedent(`
-					git add "${%s}"
-					git commit -m "${%s}"
-				`, EnvNameArgoCDApplicationFile, EnvNameGitCommitMessage),
-			},
-			{
-				Uses: "actions-js/push@v1.5",
-				With: map[string]any{
-					"github_token": "${{ secrets.GITHUB_TOKEN }}",
-					"branch":       input.checkoutCommitBranch,
-				},
-			},
-			{
-				Name: "argocd-upsert",
-				Run: util.SprintfDedent(`
-					argocd app create \
-						--grpc-web \
-						--upsert \
-						--file "${%s}" \
-						;
-				`, EnvNameArgoCDApplicationFile),
-			},
-			{
-				Name: "argocd-sync",
-				Run: util.SprintfDedent(`
-					argocd app sync \
-						--grpc-web \
-						--timeout %d \
-						;
-				`, input.syncTimeoutSeconds),
-			},
-		},
+		Secrets: *input.destination.Github.Secrets,
+		Steps:   steps,
 	}
 
 	return job

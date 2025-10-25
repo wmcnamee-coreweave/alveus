@@ -34,10 +34,37 @@ func (s *Service) Inflate() {
 				s.DestinationNamespace,
 			)
 
-			dest.ArgoCD.Hostname = util.CoalesceStrings(
-				dest.ArgoCD.Hostname,
-				group.ArgoCD.Hostname,
-				s.ArgoCD.Hostname,
+			dest.ArgoCD.LoginCommandArgs = util.CoalesceSlices(
+				dest.ArgoCD.LoginCommandArgs,
+				group.ArgoCD.LoginCommandArgs,
+				s.ArgoCD.LoginCommandArgs,
+			)
+
+			dest.Github.Secrets = util.CoalescePointers(
+				dest.Github.Secrets,
+				group.Github.Secrets,
+				s.Github.Secrets,
+				&gocto.Secrets{
+					Inherit: true,
+				},
+			)
+
+			dest.Github.PreDeploySteps = util.CoalesceSlices(
+				dest.Github.PreDeploySteps,
+				group.Github.PreDeploySteps,
+				s.Github.PreDeploySteps,
+			)
+
+			dest.Github.PostDeploySteps = util.CoalesceSlices(
+				dest.Github.PostDeploySteps,
+				group.Github.PostDeploySteps,
+				s.Github.PostDeploySteps,
+			)
+
+			dest.Github.ExtraDeployJobs = util.CoalesceMaps(
+				dest.Github.ExtraDeployJobs,
+				group.Github.ExtraDeployJobs,
+				s.Github.ExtraDeployJobs,
 			)
 
 			s.DestinationGroups[gIdx].Destinations[dIdx] = dest
