@@ -33,7 +33,7 @@ jobs:
     - name: update-application-yaml
       run: |-
         yq e '.spec.source.targetRevision = "${{ env.ARGOCD_APPLICATION_NEW_TARGET_REVISION }}"' \
-        '${ARGOCD_APPLICATION_FILE}'
+        "${ARGOCD_APPLICATION_FILE}"
     - name: git-add-commit
       run: |-
         git add "${ARGOCD_APPLICATION_FILE}"

@@ -81,7 +81,7 @@ func newDeployJob(input newDeployJobInput) gocto.Job {
 			Name: "update-application-yaml",
 			Run: util.SprintfDedent(`
 					yq e '.spec.source.targetRevision = "${{ env.%s }}"' \
-					'${%s}'
+					"${%s}"
 				`, EnvNameNewTargetRevision, EnvNameArgoCDApplicationFile),
 		},
 		gocto.Step{
