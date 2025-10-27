@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strconv"
 	"strings"
-	
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -275,9 +275,7 @@ var _ = Describe("Destinations.Validate()", func() {
 					Server:    "",
 					Namespace: "my-namespace",
 					Name:      "http://kube.local",
-					ArgoCD: ArgoCD{
-						Hostname: "foo",
-					},
+					ArgoCD:    ArgoCD{},
 				},
 			}
 		})
@@ -313,18 +311,6 @@ var _ = Describe("Destinations.Validate()", func() {
 		})
 
 		Context("except", func() {
-			When("argocdLogin.hostname is empty", func() {
-				BeforeEach(func() {
-					for i := range destinations {
-						destinations[i].ArgoCD.Hostname = ""
-					}
-				})
-
-				It("should return an error", func() {
-					Expect(actualErr).To(MatchError("validating destination: argocdLogin.hostname is required"))
-				})
-			})
-
 			When("server & name are both provided", func() {
 				BeforeEach(func() {
 					for i := range destinations {
