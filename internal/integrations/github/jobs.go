@@ -39,7 +39,6 @@ func newDeployJob(input newDeployJobInput) gocto.Job {
 	const (
 		EnvNameArgoCDApplicationFile = "ARGOCD_APPLICATION_FILE"
 		EnvNameGitCommitMessage      = "GIT_COMMIT_MESSAGE"
-		EnvNameNewTargetRevision     = "ARGOCD_APPLICATION_NEW_TARGET_REVISION"
 	)
 
 	name := input.name
@@ -80,9 +79,9 @@ func newDeployJob(input newDeployJobInput) gocto.Job {
 		gocto.Step{
 			Name: "update-application-yaml",
 			Run: util.SprintfDedent(`
-					yq e '.spec.source.targetRevision = "${{ env.%s }}"' \
+					yq e '.spec.source.targetRevision = "${{ github.sha }}"' \
 					"${%s}"
-				`, EnvNameNewTargetRevision, EnvNameArgoCDApplicationFile),
+				`, EnvNameArgoCDApplicationFile),
 		},
 		gocto.Step{
 			Name: "git-add-commit",
@@ -139,7 +138,6 @@ func newDeployJob(input newDeployJobInput) gocto.Job {
 		Env: map[string]string{
 			EnvNameArgoCDApplicationFile: input.appFilePath,
 			EnvNameGitCommitMessage:      fmt.Sprintf("feat: 🚀 deploy to %s", destinationFriendlyName),
-			EnvNameNewTargetRevision:     "123new",
 		},
 		Steps: steps,
 	}

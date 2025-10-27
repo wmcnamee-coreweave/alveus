@@ -14,7 +14,6 @@ jobs:
     - ubuntu-latest
     env:
       ARGOCD_APPLICATION_FILE: .alveus/applications/podinfo-in-cluster.yaml
-      ARGOCD_APPLICATION_NEW_TARGET_REVISION: 123new
       GIT_COMMIT_MESSAGE: "feat: 🚀 deploy to in-cluster"
     defaults:
       run:
@@ -39,7 +38,7 @@ jobs:
     - uses: frenck/action-setup-yq@v1
     - name: update-application-yaml
       run: |-
-        yq e '.spec.source.targetRevision = "${{ env.ARGOCD_APPLICATION_NEW_TARGET_REVISION }}"' \
+        yq e '.spec.source.targetRevision = "${{ github.sha }}"' \
         "${ARGOCD_APPLICATION_FILE}"
     - name: git-add-commit
       run: |-
