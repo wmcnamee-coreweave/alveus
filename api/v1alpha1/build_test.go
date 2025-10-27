@@ -70,7 +70,7 @@ var _ = Describe("Service.Inflate()", func() {
 		}
 	})
 
-	Context("argocd.hostname", func() {
+	Context("argocd.loginCommandArgs", func() {
 		BeforeEach(func() {
 			service.DestinationGroups = DestinationGroups{
 				{
@@ -99,15 +99,15 @@ var _ = Describe("Service.Inflate()", func() {
 		} {
 			Context("entry", func() {
 				BeforeEach(func() {
-					service.ArgoCD.Hostname = entry.serviceLevel
-					service.DestinationGroups[0].ArgoCD.Hostname = entry.groupLevel
-					service.DestinationGroups[0].Destinations[0].ArgoCD.Hostname = entry.destLevel
+					service.ArgoCD.LoginCommandArgs = []string{entry.serviceLevel}
+					service.DestinationGroups[0].ArgoCD.LoginCommandArgs = []string{entry.groupLevel}
+					service.DestinationGroups[0].Destinations[0].ArgoCD.LoginCommandArgs = []string{entry.destLevel}
 				})
 
 				It(fmt.Sprintf("should set namespace to %s", entry.expected), func() {
 					for _, group := range service.DestinationGroups {
 						for _, destination := range group.Destinations {
-							Expect(destination.ArgoCD.Hostname).To(Equal(entry.expected))
+							Expect(destination.ArgoCD.LoginCommandArgs).To(Equal([]string{entry.expected}))
 						}
 					}
 				})

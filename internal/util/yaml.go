@@ -1,21 +1,40 @@
 package util
 
 import (
-	"bytes"
-
+	"fmt"
 	"github.com/goccy/go-yaml"
 )
 
 func YamlMarshalWithOptions(val any) ([]byte, error) {
-	buf := &bytes.Buffer{}
-	encoder := yaml.NewEncoder(buf,
-		yaml.IndentSequence(false),
-		yaml.Indent(2),
-		yaml.OmitEmpty(),
-		yaml.OmitZero(),
-		yaml.Flow(false),
-	)
+	pass1, err := yaml.Marshal(val)
+	if err != nil {
+		return nil, fmt.Errorf("marshalling to yaml (pass 1): %w", err)
+	}
 
-	err := encoder.Encode(val)
-	return buf.Bytes(), err
+	// TODO unmarshalling to a map messes up ordering
+	// but there's some incompatibility between yaml and github.com/wk8/go-ordered-map/v2
+	// yaml cannot unmarshal into an ordered map from that package
+	pass2 := make(map[string]any)
+	err = yaml.Unmarshal(pass1, &pass2)
+	if err != nil {
+		return nil, fmt.Errorf("unmarshalling to map (pass 1.5): %w", err)
+	}
+
+	CleanKubernetesManifest(pass2)
+
+	result, err := yaml.Marshal(pass2)
+	if err != nil {
+		return nil, fmt.Errorf("marshalling yaml (pass2): %w", err)
+	}
+	return result, nil
+}
+
+func CleanKubernetesManifest(val map[string]any) {
+	if metadata, ok := val["metadata"]; ok {
+		if metadataMap, ok := metadata.(map[string]any); ok {
+			delete(metadataMap, "creationTimestamp")
+		}
+
+		delete(val, "status")
+	}
 }

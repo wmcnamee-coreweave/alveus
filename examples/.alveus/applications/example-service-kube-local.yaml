@@ -1,16 +1,16 @@
-kind: Application
 apiVersion: argoproj.io/v1alpha1
+kind: Application
 metadata:
   name: example-service-kube-local
   namespace: argocd
 spec:
+  destination:
+    namespace: podinfo
+    server: http://kube.local
+  project: default
   source:
+    directory:
+      include: "{*.yml,*.yaml}"
+      recurse: true
     repoURL: github.com/ghostsquad/fake
     targetRevision: HEAD
-    directory:
-      recurse: true
-      include: "{*.yml,*.yaml}"
-  destination:
-    server: http://kube.local
-    namespace: podinfo
-  project: default

@@ -1,7 +1,3 @@
-name: podinfo-in-cluster
-"on":
-  workflow_call: {}
-  workflow_dispatch: {}
 concurrency:
   group: in-cluster
 defaults:
@@ -9,16 +5,16 @@ defaults:
     shell: bash
 jobs:
   in-cluster:
-    name: in-cluster
-    runs-on:
-    - ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     env:
       ARGOCD_APPLICATION_FILE: .alveus/applications/podinfo-in-cluster.yaml
       ARGOCD_APPLICATION_NEW_TARGET_REVISION: 123new
       GIT_COMMIT_MESSAGE: "feat: 🚀 deploy to in-cluster"
-    defaults:
-      run:
-        shell: bash
+    name: in-cluster
+    runs-on:
+    - ubuntu-latest
     steps:
     - uses: actions/checkout@v4
       with:
@@ -68,3 +64,7 @@ jobs:
           --grpc-web \
           --timeout 300 \
           ;
+name: podinfo-in-cluster
+"on":
+  workflow_call: {}
+  workflow_dispatch: {}

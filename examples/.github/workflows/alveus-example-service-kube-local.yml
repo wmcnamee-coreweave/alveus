@@ -1,7 +1,3 @@
-name: example-service-kube-local
-"on":
-  workflow_call: {}
-  workflow_dispatch: {}
 concurrency:
   group: kube-local
 defaults:
@@ -9,16 +5,16 @@ defaults:
     shell: bash
 jobs:
   kube-local:
-    name: kube-local
-    runs-on:
-    - ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     env:
       ARGOCD_APPLICATION_FILE: .alveus/applications/example-service-kube-local.yaml
       ARGOCD_APPLICATION_NEW_TARGET_REVISION: 123new
       GIT_COMMIT_MESSAGE: "feat: 🚀 deploy to kube-local"
-    defaults:
-      run:
-        shell: bash
+    name: kube-local
+    runs-on:
+    - ubuntu-latest
     steps:
     - uses: actions/checkout@v4
       with:
@@ -61,3 +57,7 @@ jobs:
           --grpc-web \
           --timeout 300 \
           ;
+name: example-service-kube-local
+"on":
+  workflow_call: {}
+  workflow_dispatch: {}
