@@ -10,5 +10,4 @@ jobs:
   staging:
     name: staging
     uses: ./.github/workflows/alveus-example-service-staging.yml
-    secrets:
-      inherit: true
+    secrets: inherit

@@ -1,6 +1,7 @@
 package util
 
 import (
+	"bytes"
 	"fmt"
 	"reflect"
 
@@ -28,10 +29,22 @@ func YamlMarshalWithOptions(val any) ([]byte, error) {
 		val = pass2
 	}
 
-	result, err := yaml.Marshal(val)
+	buf := &bytes.Buffer{}
+	encoder := yaml.NewEncoder(buf,
+		yaml.OmitEmpty(),
+		yaml.OmitZero(),
+		yaml.IndentSequence(false),
+		yaml.Indent(2),
+		yaml.UseJSONMarshaler(),
+	)
+
+	err := encoder.Encode(val)
 	if err != nil {
 		return nil, fmt.Errorf("marshalling yaml (pass2): %w", err)
 	}
+
+	result := buf.Bytes()
+
 	return result, nil
 }
 

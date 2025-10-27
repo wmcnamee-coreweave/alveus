@@ -6,5 +6,4 @@ jobs:
   in-cluster:
     name: in-cluster
     uses: ./.github/workflows/alveus-podinfo-in-cluster.yml
-    secrets:
-      inherit: true
+    secrets: inherit

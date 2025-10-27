@@ -4,7 +4,7 @@ go 1.25.3
 
 require (
 	github.com/argoproj/argo-cd/v3 v3.1.0
-	github.com/cakehappens/gocto v0.5.4
+	github.com/cakehappens/gocto v0.5.5
 	github.com/go-git/go-billy/v6 v6.0.0-20251013092257-9a6bbea5b11a
 	github.com/goccy/go-yaml v1.18.0
 	github.com/goforj/godump v1.6.0
@@ -14,7 +14,6 @@ require (
 	github.com/onsi/gomega v1.38.0
 	github.com/spf13/cobra v1.9.1
 	k8s.io/apimachinery v0.33.1
-	sigs.k8s.io/yaml v1.6.0
 )
 
 replace github.com/goccy/go-yaml => github.com/ghostsquad/goccy-go-yaml v1.18.0-fork-3
@@ -129,8 +128,6 @@ require (
 	go.opentelemetry.io/otel v1.36.0 // indirect
 	go.opentelemetry.io/otel/trace v1.36.0 // indirect
 	go.uber.org/automaxprocs v1.6.0 // indirect
-	go.yaml.in/yaml/v2 v2.4.3 // indirect
-	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/crypto v0.41.0 // indirect
 	golang.org/x/net v0.43.0 // indirect
 	golang.org/x/oauth2 v0.30.0 // indirect
@@ -169,6 +166,7 @@ require (
 	sigs.k8s.io/kustomize/kyaml v0.19.0 // indirect
 	sigs.k8s.io/randfill v1.0.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.7.0 // indirect
+	sigs.k8s.io/yaml v1.4.0 // indirect
 )
 
 replace (
