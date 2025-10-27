@@ -1,14 +1,14 @@
+name: podinfo
+"on":
+  workflow_dispatch: {}
+  push:
+    paths:
+    - .alveus/demo/manifests
+    branches:
+    - main
 jobs:
   demo:
     name: demo
+    uses: ./.github/workflows/alveus-podinfo-demo.yml
     secrets:
       inherit: true
-    uses: ./.github/workflows/alveus-podinfo-demo.yml
-name: podinfo
-"on":
-  push:
-    branches:
-    - main
-    paths:
-    - .alveus/demo/manifests
-  workflow_dispatch: {}
