@@ -112,10 +112,13 @@ func newDeployJob(input newDeployJobInput) gocto.Job {
 				Run: util.SprintfDedent(`
 						argocd login \
 							%s \
+							--grpc-web \
+							--skip-test-tls \
 							;
-					`, util.Join(` \`+"\n\t", input.argoCDSpec.LoginCommandArgs...)),
+					`, util.Join(` \`+"\n  ", input.argoCDSpec.LoginCommandArgs...)),
 			},
 		)
+		extraArgoCDArgs = append(extraArgoCDArgs, "--grpc-web")
 	} else {
 		extraArgoCDArgs = append(extraArgoCDArgs,
 			"--core",

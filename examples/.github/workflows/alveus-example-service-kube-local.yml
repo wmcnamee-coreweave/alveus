@@ -43,18 +43,20 @@ jobs:
       run: |-
         argocd login \
           --core \
-        	--grpc-web \
+          --grpc-web \
+          --grpc-web \
+          --skip-test-tls \
           ;
     - name: argocd-upsert
       run: |-
         argocd app create \
-           \
+          --grpc-web \
           --upsert \
           --file "${ARGOCD_APPLICATION_FILE}" \
           ;
     - name: argocd-sync
       run: |-
         argocd app sync \
-           \
+          --grpc-web \
           --timeout 300 \
           ;

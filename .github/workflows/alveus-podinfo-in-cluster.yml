@@ -46,16 +46,25 @@ jobs:
       with:
         branch: ""
         github_token: ${{ secrets.GITHUB_TOKEN }}
+    - name: argocd-login
+      run: |-
+        argocd login \
+          e02a16d5f0fa.ngrok-free.app \
+          --username admin \
+          --password ${{ secrets.ARGOCD_ADMIN_PASSWORD }} \
+          --grpc-web \
+          --skip-test-tls \
+          ;
     - name: argocd-upsert
       run: |-
         argocd app create \
-          --core --kube-context orbstack \
+          --grpc-web \
           --upsert \
           --file "${ARGOCD_APPLICATION_FILE}" \
           ;
     - name: argocd-sync
       run: |-
         argocd app sync \
-          --core --kube-context orbstack \
+          --grpc-web \
           --timeout 300 \
           ;

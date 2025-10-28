@@ -7,7 +7,10 @@ destinationNamespace: podinfo
 argoCD:
   source:
     path: .alveus/demo/manifests
-  useKubeContext: orbstack
+  loginCommandArgs:
+    - e02a16d5f0fa.ngrok-free.app
+    - --username admin
+    - --password ${{ secrets.ARGOCD_ADMIN_PASSWORD }}
 github:
   "on":
     push:
