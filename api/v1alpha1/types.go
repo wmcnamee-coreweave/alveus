@@ -24,6 +24,7 @@ type Service struct {
 
 type ArgoCD struct {
 	LoginCommandArgs []string                `json:"loginCommandArgs,omitempty"`
+	UseKubeContext   *string                 `json:"useKubeContext,omitempty"`
 	Source           Source                  `json:"source,omitempty,omitzero"`
 	SyncPolicy       argov1alpha1.SyncPolicy `json:"syncPolicy,omitempty,omitzero"`
 }

@@ -111,7 +111,7 @@ func newDeploymentWorkflow(input newDeploymentWorkflowInput) gocto.Workflow {
 		name:                 jobName,
 		destination:          input.destination,
 		checkoutCommitBranch: input.checkoutCommitBranch,
-		argoLoginCommandArgs: input.destination.ArgoCD.LoginCommandArgs,
+		argoCDSpec:           input.destination.ArgoCD,
 		appFilePath:          appFilePath,
 	})
 

@@ -31,7 +31,7 @@ type newDeployJobInput struct {
 	destination          v1alpha1.Destination
 	checkoutCommitBranch string
 	appFilePath          string
-	argoLoginCommandArgs []string
+	argoCDSpec           v1alpha1.ArgoCD
 	syncTimeoutSeconds   int
 }
 
@@ -79,7 +79,7 @@ func newDeployJob(input newDeployJobInput) gocto.Job {
 		gocto.Step{
 			Name: "update-application-yaml",
 			Run: util.SprintfDedent(`
-					yq e '.spec.source.targetRevision = "${{ github.sha }}"' \
+					yq e -i '.spec.source.targetRevision = "${{ github.sha }}"' \
 					"${%s}"
 				`, EnvNameArgoCDApplicationFile),
 		},
@@ -101,32 +101,48 @@ func newDeployJob(input newDeployJobInput) gocto.Job {
 				"branch":       input.checkoutCommitBranch,
 			},
 		},
-		gocto.Step{
-			Name: "argocd-login",
-			Run: util.SprintfDedent(`
-					argocd login \
-						%s \
-						;
-				`, util.Join(` \`+"\n\t", input.argoLoginCommandArgs...)),
-		},
+	)
+
+	var extraArgoCDArgs []string
+
+	if input.argoCDSpec.UseKubeContext == nil || *input.argoCDSpec.UseKubeContext == "" {
+		steps = append(steps,
+			gocto.Step{
+				Name: "argocd-login",
+				Run: util.SprintfDedent(`
+						argocd login \
+							%s \
+							;
+					`, util.Join(` \`+"\n\t", input.argoCDSpec.LoginCommandArgs...)),
+			},
+		)
+	} else {
+		extraArgoCDArgs = append(extraArgoCDArgs,
+			"--core",
+			"--kube-context", *input.argoCDSpec.UseKubeContext)
+	}
+
+	extraArgoCDArgsString := util.Join(" ", extraArgoCDArgs...)
+
+	steps = append(steps,
 		gocto.Step{
 			Name: "argocd-upsert",
 			Run: util.SprintfDedent(`
 					argocd app create \
-						--grpc-web \
+						%s \
 						--upsert \
 						--file "${%s}" \
 						;
-				`, EnvNameArgoCDApplicationFile),
+				`, extraArgoCDArgsString, EnvNameArgoCDApplicationFile),
 		},
 		gocto.Step{
 			Name: "argocd-sync",
 			Run: util.SprintfDedent(`
 					argocd app sync \
-						--grpc-web \
+						%s \
 						--timeout %d \
 						;
-				`, input.syncTimeoutSeconds),
+				`, extraArgoCDArgsString, input.syncTimeoutSeconds),
 		})
 
 	steps = append(steps, input.destination.Github.PostDeploySteps...)

@@ -40,6 +40,12 @@ func (s *Service) Inflate() {
 				s.ArgoCD.LoginCommandArgs,
 			)
 
+			dest.ArgoCD.UseKubeContext = util.CoalescePointers(
+				dest.ArgoCD.UseKubeContext,
+				group.ArgoCD.UseKubeContext,
+				s.ArgoCD.UseKubeContext,
+			)
+
 			dest.Github.Secrets = util.CoalescePointers(
 				dest.Github.Secrets,
 				group.Github.Secrets,

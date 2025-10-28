@@ -31,7 +31,7 @@ jobs:
     - uses: frenck/action-setup-yq@v1
     - name: update-application-yaml
       run: |-
-        yq e '.spec.source.targetRevision = "${{ github.sha }}"' \
+        yq e -i '.spec.source.targetRevision = "${{ github.sha }}"' \
         "${ARGOCD_APPLICATION_FILE}"
     - name: git-add-commit
       run: "git add \"${ARGOCD_APPLICATION_FILE}\"\nif git diff-index --quiet HEAD -- 2>/dev/null; then\n  echo \"No changes to commit\"\nelse\n  git commit -m \"${GIT_COMMIT_MESSAGE}\"\nfi"
@@ -48,13 +48,13 @@ jobs:
     - name: argocd-upsert
       run: |-
         argocd app create \
-          --grpc-web \
+           \
           --upsert \
           --file "${ARGOCD_APPLICATION_FILE}" \
           ;
     - name: argocd-sync
       run: |-
         argocd app sync \
-          --grpc-web \
+           \
           --timeout 300 \
           ;

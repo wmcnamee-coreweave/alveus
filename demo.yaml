@@ -7,9 +7,7 @@ destinationNamespace: podinfo
 argoCD:
   source:
     path: .alveus/demo/manifests
-  loginCommandArgs:
-    - --core
-    - --grpc-web
+  useKubeContext: orbstack
 github:
   "on":
     push:
