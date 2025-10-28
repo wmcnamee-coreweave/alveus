@@ -41,9 +41,7 @@ jobs:
         yq e '.spec.source.targetRevision = "${{ github.sha }}"' \
         "${ARGOCD_APPLICATION_FILE}"
     - name: git-add-commit
-      run: |-
-        git add "${ARGOCD_APPLICATION_FILE}"
-        git commit -m "${GIT_COMMIT_MESSAGE}"
+      run: "git add \"${ARGOCD_APPLICATION_FILE}\"\nif git diff-index --quiet HEAD -- 2>/dev/null; then\n  echo \"No changes to commit\"\nelse\n  git commit -m \"${GIT_COMMIT_MESSAGE}\"\nfi"
     - uses: actions-js/push@v1.5
       with:
         branch: ""

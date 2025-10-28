@@ -87,7 +87,11 @@ func newDeployJob(input newDeployJobInput) gocto.Job {
 			Name: "git-add-commit",
 			Run: util.SprintfDedent(`
 					git add "${%s}"
-					git commit -m "${%s}"
+					if git diff-index --quiet HEAD -- 2>/dev/null; then
+						echo "No changes to commit"
+					else
+						git commit -m "${%s}"
+					fi
 				`, EnvNameArgoCDApplicationFile, EnvNameGitCommitMessage),
 		},
 		gocto.Step{
