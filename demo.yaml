@@ -10,10 +10,6 @@ destinationNamespace: podinfo
 argoCD:
   source:
     path: .alveus/demo/manifests
-  loginCommandArgs:
-    - e02a16d5f0fa.ngrok-free.app
-    - --username admin
-    - --password ${{ secrets.ARGOCD_ADMIN_PASSWORD }}
 github:
   "on":
     push:
@@ -25,7 +21,3 @@ github:
     - uses: jdx/mise-action@v3
       with:
         version: 2025.10.17
-    - name: create-kube-config
-      run: |
-        mkdir -p ~/.kube
-        echo "${{ secrets.KUBE_CONFIG_B64 }}" | base64 -d > ~/.kube/config

@@ -123,9 +123,8 @@ func generateNameByStrategy(input generateNameInput) string {
 	components := []string{
 		input.serviceName,
 		input.groupName,
+		v1alpha1.CoalesceSanitizeDestination(input.destination),
 	}
-
-	components = append(components, v1alpha1.CoalesceSanitizeDestination(input.destination))
 
 	if input.strategy.IncludeDestinationNamespace {
 		components = append(components, input.destination.Namespace)

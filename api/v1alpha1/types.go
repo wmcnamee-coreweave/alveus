@@ -23,10 +23,12 @@ type Service struct {
 }
 
 type ArgoCD struct {
-	LoginCommandArgs []string                `json:"loginCommandArgs,omitempty"`
-	UseKubeContext   *string                 `json:"useKubeContext,omitempty"`
-	Source           Source                  `json:"source,omitempty,omitzero"`
-	SyncPolicy       argov1alpha1.SyncPolicy `json:"syncPolicy,omitempty,omitzero"`
+	ExtraArgs           []string                `json:"extraArgs,omitempty"`
+	Source              Source                  `json:"source,omitempty,omitzero"`
+	SyncPolicy          argov1alpha1.SyncPolicy `json:"syncPolicy,omitempty,omitzero"`
+	SyncTimeoutSeconds  *int                    `json:"syncTimeoutSeconds,omitempty,omitzero"`
+	SyncRetryLimit      *int                    `json:"syncRetryLimit,omitempty,omitzero"`
+	ApplicationFilePath string                  `json:"applicationFilePath,omitempty,omitzero"`
 }
 
 type Github struct {
@@ -35,6 +37,7 @@ type Github struct {
 	PostDeploySteps []gocto.Step         `json:"postDeploySteps,omitempty"`
 	ExtraDeployJobs map[string]gocto.Job `json:"extraDeployJobs,omitempty"`
 	Secrets         *gocto.Secrets       `json:"secrets,omitempty"`
+	Env             map[string]string    `json:"env,omitempty"`
 }
 
 type ApplicationNameUniquenessStrategy struct {

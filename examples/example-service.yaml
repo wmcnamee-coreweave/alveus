@@ -4,8 +4,7 @@ destinationGroups:
   destinations:
   - server: http://kube.local
     argoCD:
-      loginCommandArgs:
-      - --core
+      extraArgs:
       - --grpc-web
 destinationNamespace: podinfo
 argoCD:

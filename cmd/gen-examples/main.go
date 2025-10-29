@@ -64,10 +64,7 @@ func createServiceFile() error {
 					{
 						Server: "http://kube.local",
 						ArgoCD: v1alpha1.ArgoCD{
-							LoginCommandArgs: []string{
-								"--core",
-								"--grpc-web",
-							},
+							ExtraArgs: []string{"--grpc-web"},
 						},
 					},
 				},
