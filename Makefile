@@ -52,16 +52,6 @@ git-push-tag-nightly: override TAG_TYPE = nightly
 git-push-tag-nightly: override TAG_SUFFIX = $(shell date +'%Y%m%d')
 git-push-tag-nightly: git-push-tag
 
-.PHONY: release
-release:
-ifeq ($(CI_RELEASE),"true")
-	goreleaser release --clean
-else
-	goreleaser release --snapshot --clean
-endif
-
-
-
 .PHONY: example
 example: build
 	cd examples && ../alveus generate \
