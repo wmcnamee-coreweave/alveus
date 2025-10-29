@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-  <a href="http://github.com/ghostsquad/alveus"><img src="./docs/assets/river.png" alt="github.com/ghostsquad/alveus" width="200px" /></a>
+  <a href="http://github.com/wmcnamee-coreweave/alveus"><img src="./docs/assets/river.png" alt="github.com/wmcnamee-coreweave/alveus" width="200px" /></a>
   <br>
   Alveus
   <br>

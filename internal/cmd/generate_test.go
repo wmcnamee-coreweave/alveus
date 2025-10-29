@@ -41,7 +41,7 @@ var _ = Describe("NewGenerateCommand", func() {
 
 	When("repo-url is set", func() {
 		BeforeEach(func() {
-			args = append(args, "--repo-url", "https://github.com/ghostsquad/alveus.git")
+			args = append(args, "--repo-url", "https://github.com/wmcnamee-coreweave/alveus.git")
 		})
 
 		It("should err as service definition passed in (filename or stdin)", func() {

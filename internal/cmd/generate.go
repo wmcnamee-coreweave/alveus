@@ -14,11 +14,11 @@ import (
 	billyutil "github.com/go-git/go-billy/v6/util"
 	"github.com/spf13/cobra"
 
-	"github.com/ghostsquad/alveus/api/v1alpha1"
-	"github.com/ghostsquad/alveus/internal/constants"
-	"github.com/ghostsquad/alveus/internal/integrations/argocd"
-	"github.com/ghostsquad/alveus/internal/integrations/github"
-	"github.com/ghostsquad/alveus/internal/util"
+	"github.com/wmcnamee-coreweave/alveus/api/v1alpha1"
+	"github.com/wmcnamee-coreweave/alveus/internal/constants"
+	"github.com/wmcnamee-coreweave/alveus/internal/integrations/argocd"
+	"github.com/wmcnamee-coreweave/alveus/internal/integrations/github"
+	"github.com/wmcnamee-coreweave/alveus/internal/util"
 )
 
 func NewGenerateCommand() *cobra.Command {

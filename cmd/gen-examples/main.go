@@ -10,7 +10,7 @@ import (
 	"github.com/goccy/go-yaml"
 	"github.com/oklog/run"
 
-	"github.com/ghostsquad/alveus/api/v1alpha1"
+	"github.com/wmcnamee-coreweave/alveus/api/v1alpha1"
 )
 
 var version string

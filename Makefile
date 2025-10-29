@@ -68,5 +68,5 @@ example: build
 
 demo: build
 	./alveus generate \
-		--repo-url https://github.com/ghostsquad/alveus.git \
+		--repo-url https://github.com/wmcnamee-coreweave/alveus.git \
 		./demo.yaml

@@ -6,7 +6,7 @@ import (
 	"github.com/cakehappens/gocto"
 	"github.com/goccy/go-yaml"
 
-	"github.com/ghostsquad/alveus/internal/util"
+	"github.com/wmcnamee-coreweave/alveus/internal/util"
 )
 
 func NewFromYaml(contents []byte) (Service, error) {

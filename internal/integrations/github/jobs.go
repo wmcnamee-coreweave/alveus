@@ -5,8 +5,8 @@ import (
 
 	"github.com/cakehappens/gocto"
 
-	"github.com/ghostsquad/alveus/api/v1alpha1"
-	"github.com/ghostsquad/alveus/internal/util"
+	"github.com/wmcnamee-coreweave/alveus/api/v1alpha1"
+	"github.com/wmcnamee-coreweave/alveus/internal/util"
 )
 
 func newDeployGroupJob(name string, wf gocto.Workflow) gocto.Job {

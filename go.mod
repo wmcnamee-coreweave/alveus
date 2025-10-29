@@ -1,4 +1,4 @@
-module github.com/ghostsquad/alveus
+module github.com/wmcnamee-coreweave/alveus
 
 go 1.25.3
 

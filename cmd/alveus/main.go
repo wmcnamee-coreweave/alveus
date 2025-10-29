@@ -8,7 +8,7 @@ import (
 
 	"github.com/oklog/run"
 
-	"github.com/ghostsquad/alveus/internal/cmd"
+	"github.com/wmcnamee-coreweave/alveus/internal/cmd"
 )
 
 var version string

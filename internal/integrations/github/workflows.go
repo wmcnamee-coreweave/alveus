@@ -5,10 +5,10 @@ import (
 	"github.com/cakehappens/gocto"
 	"github.com/goforj/godump"
 
-	"github.com/ghostsquad/alveus/api/v1alpha1"
-	"github.com/ghostsquad/alveus/internal/constants"
-	"github.com/ghostsquad/alveus/internal/integrations/argocd"
-	"github.com/ghostsquad/alveus/internal/util"
+	"github.com/wmcnamee-coreweave/alveus/api/v1alpha1"
+	"github.com/wmcnamee-coreweave/alveus/internal/constants"
+	"github.com/wmcnamee-coreweave/alveus/internal/integrations/argocd"
+	"github.com/wmcnamee-coreweave/alveus/internal/util"
 )
 
 func SetWorkflowFilenameWithAlveusPrefix(w gocto.Workflow) gocto.Workflow {

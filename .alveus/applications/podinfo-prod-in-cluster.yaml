@@ -12,5 +12,5 @@ spec:
     directory:
       include: "{*.yml,*.yaml}"
       recurse: true
-    repoURL: https://github.com/ghostsquad/alveus.git
+    repoURL: https://github.com/wmcnamee-coreweave/alveus.git
     targetRevision: HEAD
