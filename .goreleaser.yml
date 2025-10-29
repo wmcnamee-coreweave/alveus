@@ -3,7 +3,7 @@ version: 2
 project_name: alveus
 release:
   github:
-    owner: ghostsquad
+    owner: wmcnamee-coreweave
     name: alveus
 env:
   - CGO_ENABLED=0
@@ -23,60 +23,6 @@ archives:
     name_template: '{{ .Binary }}-{{ .Version }}-{{ .Os }}-{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
     files:
       - README*
-dockers:
-  - use: buildx
-    goos: linux
-    goarch: amd64
-    image_templates:
-      - gcr.io/ghostsquad/{{.ProjectName}}:latest-amd64
-      - gcr.io/ghostsquad/{{.ProjectName}}:{{ .Tag }}-amd64
-      - gcr.io/ghostsquad/{{.ProjectName}}:{{ .Major }}.{{ .Minor }}-amd64
-      - gcr.io/ghostsquad/{{.ProjectName}}:{{ .RawVersion }}-amd64
-      - gcr.io/ghostsquad/{{.ProjectName}}:{{ incpatch .Version }}-amd64
-    build_flag_templates:
-      - "--pull"
-      - "--platform=linux/amd64"
-      - "--label=org.opencontainers.image.created={{.Date}}"
-      - "--label=org.opencontainers.image.title={{.ProjectName}}"
-      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
-      - "--label=org.opencontainers.image.version={{.Version}}"
-  - use: buildx
-    goos: linux
-    goarch: arm64
-    image_templates:
-      - gcr.io/ghostsquad/{{.ProjectName}}:latest-arm64
-      - gcr.io/ghostsquad/{{.ProjectName}}:{{ .Tag }}-arm64
-      - gcr.io/ghostsquad/{{.ProjectName}}:{{ .Major }}.{{ .Minor }}-arm64
-      - gcr.io/ghostsquad/{{.ProjectName}}:{{ .RawVersion }}-arm64
-      - gcr.io/ghostsquad/{{.ProjectName}}:{{ incpatch .Version }}-amd64
-    build_flag_templates:
-      - "--pull"
-      - "--platform=linux/arm64"
-      - "--label=org.opencontainers.image.created={{.Date}}"
-      - "--label=org.opencontainers.image.title={{.ProjectName}}"
-      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
-      - "--label=org.opencontainers.image.version={{.Version}}"
-docker_manifests:
-  - name_template: ghostsquad/alveus:latest
-    image_templates:
-      - gcr.io/ghostsquad/{{.ProjectName}}:latest-amd64
-      - gcr.io/ghostsquad/{{.ProjectName}}:latest-arm64
-  - name_template: ghostsquad/alveus:{{ .Tag }}
-    image_templates:
-      - gcr.io/ghostsquad/{{.ProjectName}}:{{ .Tag }}-amd64
-      - gcr.io/ghostsquad/{{.ProjectName}}:{{ .Tag }}-arm64
-  - name_template: ghostsquad/alveus:{{ .Major }}.{{ .Minor }}
-    image_templates:
-      - gcr.io/ghostsquad/{{.ProjectName}}:{{ .Major }}.{{ .Minor }}-amd64
-      - gcr.io/ghostsquad/{{.ProjectName}}:{{ .Major }}.{{ .Minor }}-arm64
-  - name_template: ghostsquad/alveus:{{ incpatch .Version }}
-    image_templates:
-      - gcr.io/ghostsquad/{{.ProjectName}}:{{ incpatch .Version }}-amd64
-      - gcr.io/ghostsquad/{{.ProjectName}}:{{ incpatch .Version }}-arm64
-  - name_template: ghostsquad/alveus:{{ .RawVersion }}
-    image_templates:
-      - gcr.io/ghostsquad/{{.ProjectName}}:{{ .RawVersion }}-amd64
-      - gcr.io/ghostsquad/{{.ProjectName}}:{{ .RawVersion }}-arm64
 snapshot:
   version_template: "{{ incpatch .Version }}-snapshot-{{ .Commit }}"
 checksum:

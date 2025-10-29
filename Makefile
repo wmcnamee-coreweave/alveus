@@ -54,11 +54,13 @@ git-push-tag-nightly: git-push-tag
 
 .PHONY: release
 release:
-	mkdir -p $(CURDIR)/bin
-	rm -rf $(CURDIR)/bin/docker
-	ln -s $(shell which podman) $(CURDIR)/bin/docker && \
-	export PATH="$(CURDIR)/bin:$(PATH)" && \
+ifeq ($(CI_RELEASE),"true")
+	goreleaser release --clean
+else
 	goreleaser release --snapshot --clean
+endif
+
+
 
 .PHONY: example
 example: build
