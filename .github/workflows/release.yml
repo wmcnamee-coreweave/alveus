@@ -20,7 +20,11 @@ jobs:
       with:
         fetch-depth: 0
         fetch-tags: true
-
+    - uses: jdx/mise-action@v3
+      with:
+        version: v2025.10.8
+        install: true
+        cache: true
     - name: Run goreleaser
       run: |
         git config --global --add safe.directory '*'
