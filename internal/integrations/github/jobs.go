@@ -105,7 +105,7 @@ func newDeployJob(input newDeployJobInput) gocto.Job {
 						--upsert \
 						--file "${%s}" \
 						--sync-policy=none \
-            			--prompts-enabled=false \
+						--prompts-enabled=false \
 						;
 				`, extraArgoCDArgsString, EnvNameArgoCDApplicationFile),
 		},
