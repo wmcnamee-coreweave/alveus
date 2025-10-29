@@ -1,4 +1,4 @@
-name: podinfo-demo
+name: podinfo-staging
 "on":
   workflow_call: {}
   workflow_dispatch: {}

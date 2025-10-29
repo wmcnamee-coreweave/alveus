@@ -1,6 +1,9 @@
 name: podinfo
 destinationGroups:
-- name: demo
+- name: staging
+  destinations:
+  - name: in-cluster
+- name: prod
   destinations:
   - name: in-cluster
 destinationNamespace: podinfo

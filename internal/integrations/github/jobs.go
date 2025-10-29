@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/cakehappens/gocto"
-	"github.com/goforj/godump"
 
 	"github.com/ghostsquad/alveus/api/v1alpha1"
 	"github.com/ghostsquad/alveus/internal/util"
@@ -12,8 +11,6 @@ import (
 
 func newDeployGroupJob(name string, wf gocto.Workflow) gocto.Job {
 	workflowPath := "./" + wf.GetRelativePathAndFilename()
-
-	godump.Dump(workflowPath)
 
 	job := gocto.Job{
 		Name: name,

@@ -13,7 +13,7 @@ jobs:
     runs-on:
     - ubuntu-latest
     env:
-      ARGOCD_APPLICATION_FILE: .alveus/applications/podinfo-in-cluster.yaml
+      ARGOCD_APPLICATION_FILE: .alveus/applications/podinfo-staging-in-cluster.yaml
       GIT_COMMIT_MESSAGE: "feat: 🚀 deploy to in-cluster"
     defaults:
       run:

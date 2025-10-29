@@ -39,7 +39,6 @@ type Github struct {
 
 type ApplicationNameUniquenessStrategy struct {
 	IncludeDestinationNamespace bool `json:"usingManyNamespaces,omitempty,omitzero"`
-	IncludeGroup                bool `json:"includeGroup,omitempty,omitzero"`
 }
 
 func (s *Service) Validate() error {
