@@ -37,7 +37,6 @@ jobs:
           version: v2025.10.8
           install: true
           cache: true
-      - run: make setup
-      - run: make release
+      - run: goreleaser release --clean --snapshot
         env:
           GITHUB_TOKEN: ${{ github.token }}
