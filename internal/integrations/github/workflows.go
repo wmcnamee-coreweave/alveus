@@ -81,6 +81,7 @@ func newDeploymentGroupWorkflows(input newDeploymentGroupWorkflowInput) (gocto.W
 			namePrefix:           namePrefix,
 			checkoutCommitBranch: input.checkoutCommitBranch,
 			destination:          dest,
+			destinationGroup:     input.group.Name,
 			apps:                 input.apps,
 		})
 		destinationFriendlyName := v1alpha1.CoalesceSanitizeDestination(dest)
@@ -95,6 +96,7 @@ type newDeploymentWorkflowInput struct {
 	namePrefix           string
 	checkoutCommitBranch string
 	destination          v1alpha1.Destination
+	destinationGroup     string
 	apps                 argocd.ApplicationRepository
 }
 
@@ -119,6 +121,7 @@ func newDeploymentWorkflow(input newDeploymentWorkflowInput) gocto.Workflow {
 		destination:          input.destination,
 		checkoutCommitBranch: input.checkoutCommitBranch,
 		argoCDSpec:           input.destination.ArgoCD,
+		destinationGroup:     input.destinationGroup,
 	})
 
 	jobs := util.MergeMapsShallow(

@@ -26,6 +26,7 @@ func newDeployGroupJob(name string, wf gocto.Workflow) gocto.Job {
 type newDeployJobInput struct {
 	name                 string
 	destination          v1alpha1.Destination
+	destinationGroup     string
 	checkoutCommitBranch string
 	argoCDSpec           v1alpha1.ArgoCD
 }
@@ -85,13 +86,6 @@ func newDeployJob(input newDeployJobInput) gocto.Job {
 					fi
 				`, EnvNameArgoCDApplicationFile, EnvNameGitCommitMessage),
 		},
-		gocto.Step{
-			Uses: "actions-js/push@v1.5",
-			With: map[string]any{
-				"github_token": "${{ secrets.GITHUB_TOKEN }}",
-				"branch":       input.checkoutCommitBranch,
-			},
-		},
 	)
 
 	extraArgoCDArgsString := util.Join(" ", input.argoCDSpec.ExtraArgs...)
@@ -112,12 +106,15 @@ func newDeployJob(input newDeployJobInput) gocto.Job {
 		gocto.Step{
 			Name: "argocd-sync",
 			Run: util.SprintfDedent(`
+					APP_NAME=$(yq '.metadata.name' "${%s}")
+					echo "synchronizing: ${APP_NAME}"
 					argocd app sync \
+						"${APP_NAME}" \
 						%s \
 						--timeout %d \
 						--retry-limit %d \
 						;
-				`, extraArgoCDArgsString,
+				`, EnvNameArgoCDApplicationFile, extraArgoCDArgsString,
 				*input.argoCDSpec.SyncTimeoutSeconds,
 				*input.argoCDSpec.SyncRetryLimit,
 			),
@@ -135,7 +132,7 @@ func newDeployJob(input newDeployJobInput) gocto.Job {
 		},
 		Env: map[string]string{
 			EnvNameArgoCDApplicationFile: input.argoCDSpec.ApplicationFilePath,
-			EnvNameGitCommitMessage:      fmt.Sprintf("feat: 🚀 deploy to %s", destinationFriendlyName),
+			EnvNameGitCommitMessage:      fmt.Sprintf("feat(%s): 🚀 deploy to %s", input.destinationGroup, destinationFriendlyName),
 		},
 		Steps: steps,
 	}

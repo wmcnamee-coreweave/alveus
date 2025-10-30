@@ -58,6 +58,7 @@ example: build
 		-r github.com/ghostsquad/fake \
 		example-service.yaml
 
+.PHONY: demo
 demo: build
 	./alveus generate \
 		--repo-url https://github.com/wmcnamee-coreweave/alveus.git \
